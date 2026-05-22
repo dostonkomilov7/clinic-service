@@ -1,0 +1,28 @@
+import { AppointmentStatus } from "@/core/constants/constants";
+import { Doctor } from "@/modules/doctors/model/doctors.model";
+import { User } from "@/modules/users/model/user.model";
+import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize-typescript";
+
+@Table({tableName: 'appointments', timestamps: true, paranoid: true})
+export class Appointment extends Model {
+    @ForeignKey(() => User)
+    @Column({type: DataType.INTEGER, allowNull: false})
+    patient_id: number;
+
+    @BelongsTo(() => User)
+    user: User;
+    
+    @ForeignKey(() => Doctor)
+    @Column({type: DataType.INTEGER, allowNull: false})
+    doctor_id: number;
+
+    @BelongsTo(() => Doctor)
+    doctor: Doctor;
+
+    @Column({type: DataType.DATE, allowNull: false})
+    appointment_date: Date;
+
+    @Column({type: DataType.ENUM(...Object.values(AppointmentStatus)), defaultValue: AppointmentStatus.PENDING})
+    status: AppointmentStatus;
+
+}
