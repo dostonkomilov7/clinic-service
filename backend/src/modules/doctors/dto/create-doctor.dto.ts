@@ -1,4 +1,5 @@
-import { IsInt, IsString } from "class-validator";
+import { Type } from "class-transformer";
+import { IsInt, IsOptional, IsString } from "class-validator";
 
 export class CreateDoctorDto {
     @IsString()
@@ -10,6 +11,15 @@ export class CreateDoctorDto {
     @IsString()
     experience: string;
 
+    @IsOptional()
+    @IsString()
+    bio: string;
+
+    @IsOptional()
+    @IsString()
+    type: string;
+
+    @Type(() => Number)
     @IsInt()
     room_number: number;
     

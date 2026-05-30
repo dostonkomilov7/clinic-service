@@ -1,1192 +1,397 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MediBook — Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediBook — Dashboard</title>
+  <link rel="stylesheet" href="../styles/user-dashboard.style.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
 
-  :root {
-    --teal-50:  #E1F5EE;
-    --teal-100: #9FE1CB;
-    --teal-400: #1D9E75;
-    --teal-600: #0F6E56;
-    --teal-800: #085041;
-    --coral-50:  #FAECE7;
-    --coral-100: #F5C4B3;
-    --coral-400: #D85A30;
-    --amber-50:  #FAEEDA;
-    --amber-400: #EF9F27;
-    --blue-50:   #E6F1FB;
-    --blue-400:  #378ADD;
-    --gray-50:  #F7F6F2;
-    --gray-100: #EDEDEA;
-    --gray-200: #D3D1C7;
-    --gray-400: #888780;
-    --gray-600: #5F5E5A;
-    --gray-800: #2C2C2A;
-    --white: #ffffff;
-    --font-display: 'DM Serif Display', Georgia, serif;
-    --font-body: 'DM Sans', system-ui, sans-serif;
-    --sidebar-w: 240px;
-    --radius: 14px;
-    --radius-sm: 9px;
-    --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
-  }
-
-  html, body {
-    height: 100%;
-    font-family: var(--font-body);
-    background: var(--gray-50);
-    color: var(--gray-800);
-  }
-
-  /* ── LAYOUT ── */
-  .app {
-    display: flex;
-    min-height: 100vh;
-  }
-
-  /* ── SIDEBAR ── */
-  .sidebar {
-    width: var(--sidebar-w);
-    background: var(--teal-800);
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: 0; left: 0; bottom: 0;
-    z-index: 100;
-    overflow: hidden;
-  }
-
-  .sidebar::after {
-    content: '';
-    position: absolute;
-    bottom: -80px; right: -80px;
-    width: 260px; height: 260px;
-    border-radius: 50%;
-    border: 50px solid rgba(255,255,255,0.04);
-    pointer-events: none;
-  }
-
-  .sidebar-brand {
-    padding: 1.75rem 1.5rem 1.25rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    margin-bottom: 0.5rem;
-  }
-
-  .brand-dot {
-    width: 32px; height: 32px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  .brand-dot svg {
-    width: 16px; height: 16px;
-    stroke: #fff; fill: none;
-    stroke-width: 2; stroke-linecap: round;
-  }
-
-  .brand-text {
-    font-family: var(--font-display);
-    font-size: 18px;
-    color: #fff;
-  }
-
-  /* Nav */
-  .nav-section {
-    padding: 0 0.75rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .nav-label {
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.35);
-    padding: 0.75rem 0.75rem 0.4rem;
-  }
-
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: background var(--transition);
-    text-decoration: none;
-    margin-bottom: 2px;
-    position: relative;
-  }
-
-  .nav-item svg {
-    width: 17px; height: 17px;
-    stroke: rgba(255,255,255,0.5);
-    fill: none;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    flex-shrink: 0;
-    transition: stroke var(--transition);
-  }
-
-  .nav-item span {
-    font-size: 14px;
-    color: rgba(255,255,255,0.6);
-    font-weight: 400;
-    transition: color var(--transition);
-  }
-
-  .nav-item .badge {
-    margin-left: auto;
-    background: var(--coral-400);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 7px;
-    border-radius: 100px;
-  }
-
-  .nav-item:hover {
-    background: rgba(255,255,255,0.07);
-  }
-
-  .nav-item:hover svg { stroke: rgba(255,255,255,0.85); }
-  .nav-item:hover span { color: rgba(255,255,255,0.85); }
-
-  .nav-item.active {
-    background: rgba(255,255,255,0.12);
-  }
-
-  .nav-item.active svg { stroke: #fff; }
-  .nav-item.active span { color: #fff; font-weight: 500; }
-
-  .nav-item.active::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 20%; bottom: 20%;
-    width: 3px;
-    background: var(--teal-100);
-    border-radius: 0 3px 3px 0;
-  }
-
-  /* User card at bottom */
-  .sidebar-user {
-    margin-top: auto;
-    padding: 1rem 1.25rem;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-  }
-
-  .user-avatar {
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    background: var(--teal-400);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px;
-    font-weight: 600;
-    color: #fff;
-    flex-shrink: 0;
-  }
-
-  .user-meta { flex: 1; min-width: 0; }
-
-  .user-meta .name {
-    font-size: 13px;
-    font-weight: 500;
-    color: #fff;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .user-meta .role {
-    font-size: 11px;
-    color: rgba(255,255,255,0.5);
-  }
-
-  .sidebar-user svg {
-    width: 15px; height: 15px;
-    stroke: rgba(255,255,255,0.4);
-    fill: none;
-    stroke-width: 2;
-    stroke-linecap: round;
-    flex-shrink: 0;
-  }
-
-  /* ── MAIN ── */
-  .main {
-    margin-left: var(--sidebar-w);
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-
-  /* Topbar */
-  .topbar {
-    height: 64px;
-    background: var(--white);
-    border-bottom: 1px solid var(--gray-100);
-    display: flex;
-    align-items: center;
-    padding: 0 2rem;
-    gap: 1rem;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-  }
-
-  .topbar-title {
-    font-family: var(--font-display);
-    font-size: 20px;
-    color: var(--gray-800);
-    flex: 1;
-  }
-
-  .topbar-title span {
-    font-style: italic;
-    color: var(--teal-600);
-  }
-
-  .search-box {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--gray-50);
-    border: 1px solid var(--gray-100);
-    border-radius: 100px;
-    padding: 0 14px;
-    height: 38px;
-    width: 220px;
-    transition: border-color var(--transition), box-shadow var(--transition);
-  }
-
-  .search-box:focus-within {
-    border-color: var(--teal-400);
-    box-shadow: 0 0 0 3px rgba(29,158,117,0.1);
-  }
-
-  .search-box svg {
-    width: 15px; height: 15px;
-    stroke: var(--gray-400);
-    fill: none;
-    stroke-width: 2;
-    stroke-linecap: round;
-    flex-shrink: 0;
-  }
-
-  .search-box input {
-    border: none;
-    background: none;
-    outline: none;
-    font-family: var(--font-body);
-    font-size: 13.5px;
-    color: var(--gray-800);
-    width: 100%;
-  }
-
-  .search-box input::placeholder { color: var(--gray-400); }
-
-  .topbar-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .icon-btn {
-    width: 38px; height: 38px;
-    border-radius: 50%;
-    border: 1px solid var(--gray-100);
-    background: var(--white);
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    position: relative;
-    transition: background var(--transition), border-color var(--transition);
-  }
-
-  .icon-btn:hover {
-    background: var(--gray-50);
-    border-color: var(--gray-200);
-  }
-
-  .icon-btn svg {
-    width: 16px; height: 16px;
-    stroke: var(--gray-600);
-    fill: none;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-  }
-
-  .notif-dot {
-    position: absolute;
-    top: 7px; right: 7px;
-    width: 7px; height: 7px;
-    background: var(--coral-400);
-    border-radius: 50%;
-    border: 1.5px solid #fff;
-  }
-
-  .topbar-avatar {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    background: var(--teal-400);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px;
-    font-weight: 600;
-    color: #fff;
-    cursor: pointer;
-  }
-
-  /* ── CONTENT ── */
-  .content {
-    padding: 2rem;
-    flex: 1;
-  }
-
-  /* Welcome banner */
-  .welcome-banner {
-    background: var(--teal-600);
-    border-radius: var(--radius);
-    padding: 1.75rem 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.75rem;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .welcome-banner::before {
-    content: '';
-    position: absolute;
-    top: -60px; right: 120px;
-    width: 200px; height: 200px;
-    border-radius: 50%;
-    border: 40px solid rgba(255,255,255,0.06);
-  }
-
-  .welcome-banner::after {
-    content: '';
-    position: absolute;
-    bottom: -50px; right: -30px;
-    width: 180px; height: 180px;
-    border-radius: 50%;
-    border: 35px solid rgba(255,255,255,0.06);
-  }
-
-  .welcome-copy { position: relative; z-index: 1; }
-
-  .welcome-copy p {
-    font-size: 13px;
-    color: rgba(255,255,255,0.65);
-    margin-bottom: 4px;
-    letter-spacing: 0.02em;
-  }
-
-  .welcome-copy h2 {
-    font-family: var(--font-display);
-    font-size: 28px;
-    color: #fff;
-    line-height: 1.2;
-  }
-
-  .welcome-copy h2 em {
-    font-style: italic;
-    color: var(--teal-100);
-  }
-
-  .welcome-copy .sub {
-    font-size: 13.5px;
-    color: rgba(255,255,255,0.6);
-    margin-top: 6px;
-  }
-
-  .welcome-actions {
-    display: flex;
-    gap: 10px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .btn-white {
-    background: #fff;
-    color: var(--teal-800);
-    border: none;
-    border-radius: var(--radius-sm);
-    padding: 10px 20px;
-    font-family: var(--font-body);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background var(--transition);
-    white-space: nowrap;
-  }
-
-  .btn-white:hover { background: var(--teal-50); }
-
-  .btn-outline-white {
-    background: rgba(255,255,255,0.12);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.25);
-    border-radius: var(--radius-sm);
-    padding: 10px 20px;
-    font-family: var(--font-body);
-    font-size: 14px;
-    font-weight: 400;
-    cursor: pointer;
-    transition: background var(--transition);
-    white-space: nowrap;
-  }
-
-  .btn-outline-white:hover { background: rgba(255,255,255,0.2); }
-
-  /* Stats row */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
-    margin-bottom: 1.75rem;
-  }
-
-  .stat-card {
-    background: var(--white);
-    border: 1px solid var(--gray-100);
-    border-radius: var(--radius);
-    padding: 1.25rem 1.4rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    transition: box-shadow var(--transition);
-  }
-
-  .stat-card:hover {
-    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-  }
-
-  .stat-card-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .stat-icon {
-    width: 38px; height: 38px;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  .stat-icon svg {
-    width: 18px; height: 18px;
-    fill: none;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-  }
-
-  .stat-icon.teal  { background: var(--teal-50);  } .stat-icon.teal  svg { stroke: var(--teal-600); }
-  .stat-icon.coral { background: var(--coral-50); } .stat-icon.coral svg { stroke: var(--coral-400); }
-  .stat-icon.amber { background: var(--amber-50); } .stat-icon.amber svg { stroke: var(--amber-400); }
-  .stat-icon.blue  { background: var(--blue-50);  } .stat-icon.blue  svg { stroke: var(--blue-400); }
-
-  .stat-change {
-    font-size: 11.5px;
-    font-weight: 500;
-    padding: 3px 8px;
-    border-radius: 100px;
-  }
-
-  .stat-change.up   { background: var(--teal-50);  color: var(--teal-600); }
-  .stat-change.down { background: var(--coral-50); color: var(--coral-400); }
-  .stat-change.neu  { background: var(--gray-100); color: var(--gray-600); }
-
-  .stat-value {
-    font-family: var(--font-display);
-    font-size: 30px;
-    color: var(--gray-800);
-    line-height: 1;
-  }
-
-  .stat-label {
-    font-size: 13px;
-    color: var(--gray-400);
-  }
-
-  /* Main grid */
-  .main-grid {
-    display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 1.5rem;
-  }
-
-  /* Section headings */
-  .section-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-  }
-
-  .section-head h3 {
-    font-family: var(--font-display);
-    font-size: 18px;
-    color: var(--gray-800);
-  }
-
-  .section-head a {
-    font-size: 13px;
-    color: var(--teal-600);
-    text-decoration: none;
-    font-weight: 500;
-  }
-
-  .section-head a:hover { text-decoration: underline; }
-
-  /* Appointments table */
-  .table-card {
-    background: var(--white);
-    border: 1px solid var(--gray-100);
-    border-radius: var(--radius);
-    overflow: hidden;
-    margin-bottom: 1.5rem;
-  }
-
-  .table-card table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .table-card thead th {
-    font-size: 11.5px;
-    font-weight: 500;
-    color: var(--gray-400);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 12px 20px;
-    text-align: left;
-    border-bottom: 1px solid var(--gray-100);
-    background: var(--gray-50);
-  }
-
-  .table-card tbody tr {
-    border-bottom: 1px solid var(--gray-100);
-    transition: background var(--transition);
-    cursor: pointer;
-  }
-
-  .table-card tbody tr:last-child { border-bottom: none; }
-  .table-card tbody tr:hover { background: var(--gray-50); }
-
-  .table-card tbody td {
-    padding: 14px 20px;
-    font-size: 14px;
-    color: var(--gray-800);
-    vertical-align: middle;
-  }
-
-  .doctor-cell {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .doc-avatar {
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
-    color: #fff;
-    flex-shrink: 0;
-  }
-
-  .doc-avatar.a { background: var(--teal-400); }
-  .doc-avatar.b { background: var(--blue-400); }
-  .doc-avatar.c { background: var(--coral-400); }
-  .doc-avatar.d { background: var(--amber-400); }
-
-  .doc-name { font-size: 14px; font-weight: 500; color: var(--gray-800); }
-  .doc-spec { font-size: 12px; color: var(--gray-400); }
-
-  .apt-date { font-size: 13.5px; color: var(--gray-800); }
-  .apt-time { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
-
-  .status-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 4px 10px;
-    border-radius: 100px;
-    font-size: 12px;
-    font-weight: 500;
-  }
-
-  .status-pill::before {
-    content: '';
-    width: 6px; height: 6px;
-    border-radius: 50%;
-  }
-
-  .status-pill.confirmed  { background: var(--teal-50);  color: var(--teal-600); }
-  .status-pill.confirmed::before  { background: var(--teal-400); }
-  .status-pill.pending    { background: var(--amber-50); color: #855010; }
-  .status-pill.pending::before    { background: var(--amber-400); }
-  .status-pill.cancelled  { background: var(--coral-50); color: var(--coral-400); }
-  .status-pill.cancelled::before  { background: var(--coral-400); }
-
-  .type-tag {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: var(--radius-sm);
-    font-size: 12px;
-    font-weight: 500;
-  }
-
-  .type-tag.in-person { background: var(--blue-50);  color: var(--blue-400); }
-  .type-tag.virtual   { background: var(--teal-50);  color: var(--teal-600); }
-
-  .row-action {
-    background: none;
-    border: 1px solid var(--gray-100);
-    border-radius: var(--radius-sm);
-    padding: 5px 12px;
-    font-family: var(--font-body);
-    font-size: 12.5px;
-    color: var(--gray-600);
-    cursor: pointer;
-    transition: border-color var(--transition), background var(--transition);
-  }
-
-  .row-action:hover {
-    border-color: var(--teal-400);
-    color: var(--teal-600);
-    background: var(--teal-50);
-  }
-
-  /* Right column */
-  .right-col { display: flex; flex-direction: column; gap: 1.25rem; }
-
-  /* Health summary card */
-  .card {
-    background: var(--white);
-    border: 1px solid var(--gray-100);
-    border-radius: var(--radius);
-    padding: 1.25rem 1.4rem;
-  }
-
-  .health-items { display: flex; flex-direction: column; gap: 1rem; }
-
-  .health-item { display: flex; flex-direction: column; gap: 6px; }
-
-  .health-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .health-name { font-size: 13px; color: var(--gray-600); }
-  .health-val  { font-size: 13px; font-weight: 500; color: var(--gray-800); }
-
-  .health-bar {
-    height: 5px;
-    background: var(--gray-100);
-    border-radius: 100px;
-    overflow: hidden;
-  }
-
-  .health-fill {
-    height: 100%;
-    border-radius: 100px;
-    transition: width 1s ease;
-  }
-
-  .health-fill.green { background: var(--teal-400); }
-  .health-fill.amber { background: var(--amber-400); }
-  .health-fill.coral { background: var(--coral-400); }
-  .health-fill.blue  { background: var(--blue-400); }
-
-  /* Meds */
-  .med-list { display: flex; flex-direction: column; gap: 0.75rem; }
-
-  .med-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
-    border-radius: var(--radius-sm);
-    background: var(--gray-50);
-    border: 1px solid var(--gray-100);
-    transition: border-color var(--transition);
-  }
-
-  .med-item:hover { border-color: var(--gray-200); }
-
-  .med-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .med-dot.green { background: var(--teal-400); }
-  .med-dot.coral { background: var(--coral-400); }
-  .med-dot.blue  { background: var(--blue-400); }
-
-  .med-info { flex: 1; }
-  .med-name { font-size: 13.5px; font-weight: 500; color: var(--gray-800); }
-  .med-dose { font-size: 11.5px; color: var(--gray-400); }
-
-  .med-time {
-    font-size: 11.5px;
-    color: var(--gray-600);
-    background: var(--white);
-    border: 1px solid var(--gray-100);
-    padding: 3px 8px;
-    border-radius: 100px;
-  }
-
-  /* Quick actions */
-  .quick-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-  }
-
-  .quick-btn {
-    background: var(--gray-50);
-    border: 1px solid var(--gray-100);
-    border-radius: var(--radius-sm);
-    padding: 14px 12px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-start;
-    transition: border-color var(--transition), background var(--transition);
-    text-align: left;
-  }
-
-  .quick-btn:hover {
-    border-color: var(--teal-400);
-    background: var(--teal-50);
-  }
-
-  .quick-btn:hover .quick-icon { background: var(--teal-100); }
-  .quick-btn:hover .quick-icon svg { stroke: var(--teal-800); }
-
-  .quick-icon {
-    width: 32px; height: 32px;
-    background: var(--gray-100);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    transition: background var(--transition);
-  }
-
-  .quick-icon svg {
-    width: 15px; height: 15px;
-    stroke: var(--gray-600);
-    fill: none;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    transition: stroke var(--transition);
-  }
-
-  .quick-btn span {
-    font-size: 12.5px;
-    font-weight: 500;
-    color: var(--gray-700);
-    line-height: 1.35;
-  }
-
-  /* Responsive */
-  @media (max-width: 1100px) {
-    .stats-grid { grid-template-columns: repeat(2,1fr); }
-    .main-grid  { grid-template-columns: 1fr; }
-  }
-
-  @media (max-width: 768px) {
-    .sidebar { transform: translateX(-100%); }
-    .main    { margin-left: 0; }
-    .welcome-actions { display: none; }
-    .stats-grid { grid-template-columns: repeat(2,1fr); }
-  }
-</style>
 </head>
+
 <body>
-<div class="app">
+  <div class="app">
 
-  <!-- ── SIDEBAR ── -->
-  <aside class="sidebar">
-    <div class="sidebar-brand">
-      <div class="brand-dot">
-        <svg viewBox="0 0 24 24"><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/><circle cx="12" cy="12" r="3"/></svg>
-      </div>
-      <span class="brand-text">MediBook</span>
-    </div>
-
-    <nav class="nav-section">
-      <p class="nav-label">Overview</p>
-      <a class="nav-item active" href="#">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        <span>Dashboard</span>
-      </a>
-      <a class="nav-item" href="#">
-        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span>Appointments</span>
-        <span class="badge">3</span>
-      </a>
-      <a class="nav-item" href="#">
-        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        <span>Medical Records</span>
-      </a>
-      <a class="nav-item" href="#">
-        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        <span>Messages</span>
-        <span class="badge">2</span>
-      </a>
-    </nav>
-
-    <nav class="nav-section">
-      <p class="nav-label">Health</p>
-      <a class="nav-item" href="#">
-        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        <span>Health Metrics</span>
-      </a>
-      <a class="nav-item" href="#">
-        <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0 0h18"/></svg>
-        <span>Prescriptions</span>
-      </a>
-      <a class="nav-item" href="#">
-        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-        <span>My Doctors</span>
-      </a>
-    </nav>
-
-    <nav class="nav-section">
-      <p class="nav-label">Account</p>
-      <a class="nav-item" href="#">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93A10 10 0 1 0 4.93 19.07"/><path d="M19.07 4.93l-7.07 7.07"/></svg>
-        <span>Settings</span>
-      </a>
-      <a class="nav-item" href="#">
-        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        <span>Sign out</span>
-      </a>
-    </nav>
-
-    <div class="sidebar-user">
-      <div class="user-avatar">JD</div>
-      <div class="user-meta">
-        <p class="name">John Doe</p>
-        <p class="role">Patient · ID #4821</p>
-      </div>
-      <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-    </div>
-  </aside>
-
-  <!-- ── MAIN ── -->
-  <div class="main">
-
-    <!-- Topbar -->
-    <header class="topbar">
-      <h1 class="topbar-title">Good morning, <span>John</span> 👋</h1>
-
-      <div class="search-box">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" placeholder="Search doctors, records…">
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-dot">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2v5M12 17v5M2 12h5M17 12h5" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+        </div>
+        <span class="brand-text">MediBook</span>
       </div>
 
-      <div class="topbar-actions">
-        <button class="icon-btn" aria-label="Notifications">
-          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-          <span class="notif-dot"></span>
-        </button>
-        <button class="icon-btn" aria-label="Help">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        </button>
-        <div class="topbar-avatar" title="John Doe">JD</div>
+      <nav class="nav-section">
+        <p class="nav-label">Overview</p>
+        <a class="nav-item active" href="#">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
+          </svg>
+          <span>Dashboard</span>
+        </a>
+        <a class="nav-item" href="my-appointments">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+          </svg>
+          <span>Appointments</span>
+          <span class="badge">3</span>
+        </a>
+        <a class="nav-item" href="#">
+          <svg viewBox="0 0 24 24">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+          </svg>
+          <span>Medical Records</span>
+          <span class="badge">Soon</span>
+        </a>
+        <a class="nav-item" href="#">
+          <svg viewBox="0 0 24 24">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+          </svg>
+          <span>Messages</span>
+          <span class="badge">Soon</span>
+        </a>
+      </nav>
+
+      <nav class="nav-section">
+        <p class="nav-label">Health</p>
+        <a class="nav-item" href="#">
+          <svg viewBox="0 0 24 24">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg>
+          <span>Health Metrics</span>
+          <span class="badge">Soon</span>
+        </a>
+        <a class="nav-item" href="#">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0 0h18" />
+          </svg>
+          <span>Prescriptions</span>
+          <span class="badge">Soon</span>
+        </a>
+        <a class="nav-item" href="#">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+          </svg>
+          <span>My Doctors</span>
+          <span class="badge">Soon</span>
+        </a>
+      </nav>
+
+      <nav class="nav-section">
+        <p class="nav-label">Account</p>
+        <a class="nav-item" href="#">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.07 4.93A10 10 0 1 0 4.93 19.07" />
+            <path d="M19.07 4.93l-7.07 7.07" />
+          </svg>
+          <span>Settings</span>
+          <span class="badge">Soon</span>
+        </a>
+        <a class="nav-item" onclick="signOut()">
+          <svg viewBox="0 0 24 24">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          <span>Sign out</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-user">
+        <div class="user-avatar">U</div>
+        <div class="user-meta">
+          <p class="name">User</p>
+          <p class="role">User · ID #777</p>
+        </div>
+        <svg viewBox="0 0 24 24">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
       </div>
-    </header>
+    </aside>
 
-    <!-- Content -->
-    <div class="content">
+    <!-- ── MAIN ── -->
+    <div class="main">
 
-      <!-- Welcome banner -->
-      <div class="welcome-banner">
-        <div class="welcome-copy">
-          <p>Thursday, May 21, 2026</p>
-          <h2>Welcome back, <em>John.</em></h2>
-          <p class="sub">You have 2 upcoming appointments this week.</p>
-        </div>
-        <div class="welcome-actions">
-          <button class="btn-white">+ Book Appointment</button>
-          <button class="btn-outline-white">View Records</button>
-        </div>
-      </div>
+      <!-- Topbar -->
+      <header class="topbar">
+        <h1 class="topbar-title">Good morning, <span class="headers"></span> 👋</h1>
 
-      <!-- Stats -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-card-top">
-            <div class="stat-icon teal">
-              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </div>
-            <span class="stat-change up">↑ 2 new</span>
-          </div>
-          <div class="stat-value">8</div>
-          <div class="stat-label">Total Appointments</div>
+        <div class="search-box">
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input type="text" placeholder="Search doctors, records…">
         </div>
 
-        <div class="stat-card">
-          <div class="stat-card-top">
-            <div class="stat-icon coral">
-              <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-            </div>
-            <span class="stat-change neu">Stable</span>
+        <div class="topbar-actions">
+          <button class="icon-btn" aria-label="Notifications">
+            <svg viewBox="0 0 24 24">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 01-3.46 0" />
+            </svg>
+            <span class="notif-dot"></span>
+          </button>
+          <div class="topbar-avatar" title="">U</div>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <div class="content">
+
+        <!-- Welcome banner -->
+        <div class="welcome-banner">
+          <div class="welcome-copy">
+            <p class="date"></p>
+            <h2>Welcome back, <em class="intro"></em></h2>
           </div>
-          <div class="stat-value">3</div>
-          <div class="stat-label">Active Medications</div>
+          <div class="welcome-actions">
+            <a href="book-appointment"><button class="btn-white">+ Book Appointment</button></a>
+            <button class="btn-outline-white">View Records</button>
+          </div>
         </div>
 
-        <div class="stat-card">
-          <div class="stat-card-top">
-            <div class="stat-icon amber">
-              <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            </div>
-            <span class="stat-change up">↑ Good</span>
-          </div>
-          <div class="stat-value">72<small style="font-size:16px;color:var(--gray-400)"> bpm</small></div>
-          <div class="stat-label">Heart Rate</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-card-top">
-            <div class="stat-icon blue">
-              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            </div>
-            <span class="stat-change up">↑ 1 new</span>
-          </div>
-          <div class="stat-value">12</div>
-          <div class="stat-label">Medical Records</div>
-        </div>
-      </div>
-
-      <!-- Main grid -->
-      <div class="main-grid">
-
-        <!-- Left: Appointments -->
-        <div>
-          <div class="section-head">
-            <h3>Upcoming Appointments</h3>
-            <a href="#">View all →</a>
-          </div>
-
-          <div class="table-card">
-            <table>
-              <thead>
-                <tr>
-                  <th>Doctor</th>
-                  <th>Date & Time</th>
-                  <th>Type</th>
-                  <th>Status</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <div class="doctor-cell">
-                      <div class="doc-avatar a">SR</div>
-                      <div>
-                        <div class="doc-name">Dr. Sarah Rahman</div>
-                        <div class="doc-spec">Cardiologist</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="apt-date">May 23, 2026</div>
-                    <div class="apt-time">10:30 AM</div>
-                  </td>
-                  <td><span class="type-tag virtual">Virtual</span></td>
-                  <td><span class="status-pill confirmed">Confirmed</span></td>
-                  <td><button class="row-action">Join call</button></td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="doctor-cell">
-                      <div class="doc-avatar b">MK</div>
-                      <div>
-                        <div class="doc-name">Dr. Michael Kim</div>
-                        <div class="doc-spec">Dermatologist</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="apt-date">May 27, 2026</div>
-                    <div class="apt-time">2:00 PM</div>
-                  </td>
-                  <td><span class="type-tag in-person">In-person</span></td>
-                  <td><span class="status-pill confirmed">Confirmed</span></td>
-                  <td><button class="row-action">Details</button></td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="doctor-cell">
-                      <div class="doc-avatar c">AP</div>
-                      <div>
-                        <div class="doc-name">Dr. Ayesha Patel</div>
-                        <div class="doc-spec">Neurologist</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="apt-date">Jun 3, 2026</div>
-                    <div class="apt-time">9:00 AM</div>
-                  </td>
-                  <td><span class="type-tag in-person">In-person</span></td>
-                  <td><span class="status-pill pending">Pending</span></td>
-                  <td><button class="row-action">Details</button></td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="doctor-cell">
-                      <div class="doc-avatar d">TN</div>
-                      <div>
-                        <div class="doc-name">Dr. Thomas Nguyen</div>
-                        <div class="doc-spec">General Practitioner</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="apt-date">Jun 10, 2026</div>
-                    <div class="apt-time">11:15 AM</div>
-                  </td>
-                  <td><span class="type-tag virtual">Virtual</span></td>
-                  <td><span class="status-pill cancelled">Cancelled</span></td>
-                  <td><button class="row-action">Rebook</button></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Quick actions -->
-          <div class="section-head">
-            <h3>Quick Actions</h3>
-          </div>
-          <div class="quick-grid">
-            <button class="quick-btn">
-              <div class="quick-icon">
-                <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <div class="stat-icon teal">
+                <svg viewBox="0 0 24 24">
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
               </div>
-              <span>Book a new appointment</span>
-            </button>
-            <button class="quick-btn">
-              <div class="quick-icon">
-                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              <span class="stat-change up">New</span>
+            </div>
+            <div class="stat-value"></div>
+            <div class="stat-label">Total Appointments</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <div class="stat-icon coral">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+                </svg>
               </div>
-              <span>Message your doctor</span>
-            </button>
-            <button class="quick-btn">
-              <div class="quick-icon">
-                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span class="stat-change neu">Stable</span>
+            </div>
+            <div class="stat-value">3</div>
+            <div class="stat-label">Active Medications</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <div class="stat-icon amber">
+                <svg viewBox="0 0 24 24">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                </svg>
               </div>
-              <span>Download medical records</span>
-            </button>
-            <button class="quick-btn">
-              <div class="quick-icon">
-                <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <span class="stat-change up">↑ Good</span>
+            </div>
+            <div class="stat-value">72<small style="font-size:16px;color:var(--gray-400)"> bpm</small></div>
+            <div class="stat-label">Heart Rate</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <div class="stat-icon blue">
+                <svg viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>
               </div>
-              <span>Log health metrics</span>
-            </button>
+              <span class="stat-change up">↑ 1 new</span>
+            </div>
+            <div class="stat-value">12</div>
+            <div class="stat-label">Medical Records</div>
           </div>
         </div>
 
-        <!-- Right column -->
-        <div class="right-col">
+        <!-- Main grid -->
+        <div class="main-grid">
 
-          <!-- Health summary -->
-          <div class="card">
+          <!-- Left: Appointments -->
+          <div>
             <div class="section-head">
-              <h3>Health Summary</h3>
-              <a href="#">Details →</a>
+              <h3>Upcoming Appointments</h3>
+              <a href="my-appointments">View all →</a>
             </div>
-            <div class="health-items">
-              <div class="health-item">
-                <div class="health-row">
-                  <span class="health-name">Blood Pressure</span>
-                  <span class="health-val">118/76 mmHg</span>
-                </div>
-                <div class="health-bar"><div class="health-fill green" style="width:72%"></div></div>
-              </div>
-              <div class="health-item">
-                <div class="health-row">
-                  <span class="health-name">Blood Sugar</span>
-                  <span class="health-val">98 mg/dL</span>
-                </div>
-                <div class="health-bar"><div class="health-fill blue" style="width:55%"></div></div>
-              </div>
-              <div class="health-item">
-                <div class="health-row">
-                  <span class="health-name">BMI</span>
-                  <span class="health-val">24.1</span>
-                </div>
-                <div class="health-bar"><div class="health-fill amber" style="width:60%"></div></div>
-              </div>
-              <div class="health-item">
-                <div class="health-row">
-                  <span class="health-name">Cholesterol</span>
-                  <span class="health-val">180 mg/dL</span>
-                </div>
-                <div class="health-bar"><div class="health-fill coral" style="width:45%"></div></div>
-              </div>
-            </div>
-          </div>
 
-          <!-- Medications -->
-          <div class="card">
+            <div class="table-card">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Doctor</th>
+                    <th>Date & Time</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody class="app-list">
+                  
+                </tbody>
+              </table>
+
+              <!-- <h5 style="text-align: center; padding: 20px 0;">Appointments is not found</h5> -->
+            </div>
+
+            <!-- Quick actions -->
             <div class="section-head">
-              <h3>Medications</h3>
-              <a href="#">All →</a>
+              <h3>Quick Actions</h3>
             </div>
-            <div class="med-list">
-              <div class="med-item">
-                <div class="med-dot green"></div>
-                <div class="med-info">
-                  <div class="med-name">Lisinopril</div>
-                  <div class="med-dose">10 mg · Once daily</div>
+            <div class="quick-grid">
+              <a href="book-appointment">
+                <button class="quick-btn">
+                  <div class="quick-icon">
+                    <svg viewBox="0 0 24 24">
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                  </div>
+                  <span>Book a new appointment</span>
+                </button>
+              </a>
+              <button class="quick-btn">
+                <div class="quick-icon">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                  </svg>
                 </div>
-                <span class="med-time">8:00 AM</span>
-              </div>
-              <div class="med-item">
-                <div class="med-dot coral"></div>
-                <div class="med-info">
-                  <div class="med-name">Atorvastatin</div>
-                  <div class="med-dose">20 mg · Once nightly</div>
+                <span>Message your doctor</span>
+              </button>
+              <button class="quick-btn">
+                <div class="quick-icon">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                  </svg>
                 </div>
-                <span class="med-time">10:00 PM</span>
-              </div>
-              <div class="med-item">
-                <div class="med-dot blue"></div>
-                <div class="med-info">
-                  <div class="med-name">Metformin</div>
-                  <div class="med-dose">500 mg · Twice daily</div>
+                <span>Download medical records</span>
+              </button>
+              <button class="quick-btn">
+                <div class="quick-icon">
+                  <svg viewBox="0 0 24 24">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                  </svg>
                 </div>
-                <span class="med-time">8 AM / 8 PM</span>
-              </div>
+                <span>Log health metrics</span>
+              </button>
             </div>
           </div>
 
+          <!-- Right column -->
+          <div class="right-col">
+
+            <!-- Health summary -->
+            <div class="card">
+              <div class="section-head">
+                <h3>Health Summary</h3>
+                <a href="#">Details →</a>
+              </div>
+              <div class="health-items">
+                <div class="health-item">
+                  <div class="health-row">
+                    <span class="health-name">Blood Pressure</span>
+                    <span class="health-val">118/76 mmHg</span>
+                  </div>
+                  <div class="health-bar">
+                    <div class="health-fill green" style="width:72%"></div>
+                  </div>
+                </div>
+                <div class="health-item">
+                  <div class="health-row">
+                    <span class="health-name">Blood Sugar</span>
+                    <span class="health-val">98 mg/dL</span>
+                  </div>
+                  <div class="health-bar">
+                    <div class="health-fill blue" style="width:55%"></div>
+                  </div>
+                </div>
+                <div class="health-item">
+                  <div class="health-row">
+                    <span class="health-name">BMI</span>
+                    <span class="health-val">24.1</span>
+                  </div>
+                  <div class="health-bar">
+                    <div class="health-fill amber" style="width:60%"></div>
+                  </div>
+                </div>
+                <div class="health-item">
+                  <div class="health-row">
+                    <span class="health-name">Cholesterol</span>
+                    <span class="health-val">180 mg/dL</span>
+                  </div>
+                  <div class="health-bar">
+                    <div class="health-fill coral" style="width:45%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Medications -->
+            <div class="card">
+              <div class="section-head">
+                <h3>Medications</h3>
+                <a href="#">All →</a>
+              </div>
+              <div class="med-list">
+                <div class="med-item">
+                  <div class="med-dot green"></div>
+                  <div class="med-info">
+                    <div class="med-name">Lisinopril</div>
+                    <div class="med-dose">10 mg · Once daily</div>
+                  </div>
+                  <span class="med-time">8:00 AM</span>
+                </div>
+                <div class="med-item">
+                  <div class="med-dot coral"></div>
+                  <div class="med-info">
+                    <div class="med-name">Atorvastatin</div>
+                    <div class="med-dose">20 mg · Once nightly</div>
+                  </div>
+                  <span class="med-time">10:00 PM</span>
+                </div>
+                <div class="med-item">
+                  <div class="med-dot blue"></div>
+                  <div class="med-info">
+                    <div class="med-name">Metformin</div>
+                    <div class="med-dose">500 mg · Twice daily</div>
+                  </div>
+                  <span class="med-time">8 AM / 8 PM</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
+
+  <script src="../ts/user-dashboard.ts" type="module"></script>
 </body>
+
 </html>

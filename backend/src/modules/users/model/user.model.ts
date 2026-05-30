@@ -8,8 +8,8 @@ export class User extends Model {
     @Column({type: DataType.STRING, allowNull: false})
     full_name: string;
 
-    @Column({ type: DataType.INTEGER, allowNull: true })
-    age: number;
+    @Column({ type: DataType.DATEONLY, allowNull: true })
+    age: string;
 
     @Column({type: DataType.STRING, allowNull: false, unique: true})
     email: string
@@ -20,14 +20,17 @@ export class User extends Model {
     @Column({type: DataType.STRING, allowNull: false, unique: true})
     phone: string;
 
-    @Column({type: DataType.STRING, allowNull: false, unique: true})
-    telgram_id: string;
+    @Column({type: DataType.STRING(6), allowNull: true})
+    otp: string;
 
-    @Column({type: DataType.ENUM(...Object.values(UserRole)), defaultValue: UserRole.USER})
-    role: string;
+    // @Column({type: DataType.STRING, allowNull: false, unique: true})
+    // telgram_id: string;
 
-    @Column({type: DataType.ENUM(...Object.values(UserStatus)), defaultValue: UserStatus.INACTIVE })
-    status: string;
+    @Column({type: DataType.ENUM(...Object.values(UserRole)), defaultValue: UserRole.user})
+    role: UserRole;
+
+    @Column({type: DataType.ENUM(...Object.values(UserStatus)), defaultValue: UserStatus.inactive })
+    status: UserStatus;
 
     @HasMany(() => Doctor)
     doctors: Doctor[]

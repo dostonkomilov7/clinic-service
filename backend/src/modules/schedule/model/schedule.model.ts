@@ -10,8 +10,8 @@ export class Schedule extends Model {
     @BelongsTo(() => Doctor)
     doctor: Doctor;
 
-    @Column({type: DataType.INTEGER, allowNull: false})
-    work_day: number;
+    @Column({type: DataType.STRING, allowNull: false})
+    work_day: string;
 
     @Column({type: DataType.TIME, allowNull: false})
     start_time: string;

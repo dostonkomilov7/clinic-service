@@ -3,11 +3,22 @@ import {SequelizeModule} from "@nestjs/sequelize"
 import {ConfigModule} from "@nestjs/config"
 import { UserModule } from './modules/users/user.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { validate } from './core/config/env-validation';
+import configuration from './core/config/configuration';
+import { ScheduleModule } from './modules/schedule/schedule.module';
+import { DoctorModule } from './modules/doctors/doctors.module';
+import { AppointmentModule } from './modules/appointments/appointment.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './common/guards/auth.guard';
+import { RolesGuard } from './common/guards/roles.guard';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
+      validate: validate,
+      envFilePath: process.env.NODE_ENV === "test" ? '.env.testing' : ".env",
+      load: [configuration],
     }),
     SequelizeModule.forRoot({
       dialect: "postgres",
@@ -19,12 +30,27 @@ import { AuthModule } from './modules/auth/auth.module';
       logging: console.log,
       synchronize: true,
       sync: {
-        force: process.env.NODE_ENV === 'development',
+        force: process.env.NODE_ENV === 'test',
+        // force: process.env.NODE_ENV === 'development',
         alter: true
-      } 
+      },
+      autoLoadModels: true,
     }),
     UserModule,
     AuthModule,
+    ScheduleModule,
+    DoctorModule,
+    AppointmentModule,
   ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    }
+  ]
 })
 export class AppModule {}

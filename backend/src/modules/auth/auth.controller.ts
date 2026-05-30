@@ -1,33 +1,34 @@
-import { Body, Controller, Param, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query, Res } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
+import type { Response } from "express";
 
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
-    @Post()
-    async register(@Body() dto: RegisterDto) {
-        return this.authService.register(dto)
+    @Post('register')
+    async register(@Body() dto: RegisterDto, @Res() res: Response) {
+        return this.authService.register(dto, res)
     }
 
-    @Post()
-    async login(@Body() dto: LoginDto) {
-        return this.authService.login(dto)
+    @Post('login')
+    async login(@Body() dto: LoginDto, @Res() res: Response) {
+        return this.authService.login(dto, res)
     }
 
-    @Post()
-    async activateUser(@Query('id') id: string, @Query('signed') signed: string) {
-        return this.authService.activateUser(id, signed)
+    @Post('activate')
+    async activateUser(@Body('email') email: string, @Body('code') code: string, @Res() res: Response) {
+        return this.authService.activateUser(email, code, res)
     }
 
-    @Post()
+    @Post('forgot-password')
     async forgotPassword(@Body() email: string) {
         return this.authService.forgotPassword(email)
     }
 
-    @Post()
+    @Post('reset-password')
     async resetPassword(@Query('id') id: string, @Body() password: string) {
         return this.authService.resetPassword(id, password)
     }

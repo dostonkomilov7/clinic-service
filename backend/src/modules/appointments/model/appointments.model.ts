@@ -19,8 +19,11 @@ export class Appointment extends Model {
     @BelongsTo(() => Doctor)
     doctor: Doctor;
 
-    @Column({type: DataType.DATE, allowNull: false})
-    appointment_date: Date;
+    @Column({type: DataType.DATEONLY, allowNull: false})
+    appointment_date: string;
+
+    @Column({type: DataType.STRING, allowNull: false})
+    appointment_time: string;
 
     @Column({type: DataType.ENUM(...Object.values(AppointmentStatus)), defaultValue: AppointmentStatus.PENDING})
     status: AppointmentStatus;

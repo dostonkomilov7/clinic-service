@@ -1,18 +1,24 @@
 export enum UserStatus {
-    ACTIVE = 'active',
-    INACTIVE = 'inactive',
+    active = 'Active',
+    inactive = 'Inactive',
+}
+
+export enum DoctorStatus {
+    active = 'Active',
+    inactive = 'inactive',
+    suspended = 'Suspended'
 }
 
 export enum UserRole {
-    ADMIN = 'user',
-    DOCTOR = 'doctor',
-    USER = 'user',
+    admin = 'Admin',
+    doctor = 'Doctor',
+    user = 'User',
 }
 
 export enum AppointmentStatus {
-    PENDING = 'pending',
-    CONFIRMED = 'confirmed',
-    CANCELED = 'canceled',
-    COMPLETED = 'completed',
+    PENDING = 'Pending',
+    CONFIRMED = 'Confirmed',
+    CANCELLED = 'Cancelled',
+    COMPLETED = 'Completed',
 }
 
