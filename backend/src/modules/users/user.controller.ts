@@ -28,8 +28,8 @@ export class UserController {
         return await this.userService.updateUser(id, dto)
     }
     
-    @Protected(true)
-    @Roles([UserRole.admin])
+    // @Protected(true)
+    // @Roles([UserRole.admin])
     @Delete(':id')
     async deleteUser(@Param('id') id: string) {
         return await this.userService.deleteUser(id)

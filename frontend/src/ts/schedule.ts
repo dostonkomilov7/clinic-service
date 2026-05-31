@@ -1,6 +1,24 @@
 import { redirectIfNotAuth } from "../main";
+import { MediAlert } from "./alert";
 
-// redirectIfNotAuth();
+redirectIfNotAuth();
+
+async function check() {
+    const ROLE = await cookieStore.get('role');
+    if (ROLE?.value !== 'Admin' && ROLE?.value !== 'Doctor') {
+        MediAlert.modal({
+            type: 'error',
+            title: 'Access Denied',
+            message: 'You do not have permission to view this page.',
+            detail: 'Error code: 403 — Forbidden',
+            confirmText: 'Go Back',
+            cancelText: 'Contact Support',
+            onConfirm: () => window.history.back()
+        });
+    }
+}
+
+await check()
 
 type ApptType = 'in-person' | 'virtual';
 type ApptTag = '' | 'followup' | 'new-pt' | 'urgent';

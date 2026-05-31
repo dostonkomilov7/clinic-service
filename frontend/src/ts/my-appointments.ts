@@ -1,6 +1,24 @@
-import { redirectIfNotAuth, userData } from "../main";
+import { redirectIfNotAuth, getUserData } from "../main";
+import { MediAlert } from "./alert";
 
-// redirectIfNotAuth();
+redirectIfNotAuth();
+
+async function check() {
+  const ROLE = await cookieStore.get('role');
+  if (ROLE?.value !== 'Admin' && ROLE?.value !== 'User') {
+    MediAlert.modal({
+      type: 'error',
+      title: 'Access Denied',
+      message: 'You do not have permission to view this page.',
+      detail: 'Error code: 403 — Forbidden',
+      confirmText: 'Go Back',
+      cancelText: 'Contact Support',
+      onConfirm: () => window.history.back()
+    });
+  }
+}
+
+await check()
 
 const apiUrl = import.meta.env.VITE_API_URL;
 const appointmentsBox = document.getElementById('upcoming-grid')
@@ -22,6 +40,7 @@ const role = document.querySelector('.role');
 const topAvtr = document.querySelector('.topbar-avatar');
 const userAvtr = document.querySelector('.user-avatar');
 
+const userData = await getUserData();
 name!.textContent = userData.users[0].full_name;
 topAvtr!.textContent = userData.users[0].full_name[0].toUpperCase();
 userAvtr!.textContent = userData.users[0].full_name[0].toUpperCase();

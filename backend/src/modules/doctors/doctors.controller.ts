@@ -32,14 +32,14 @@ export class DoctorController {
 
     @Protected(true)
     @Roles([UserRole.admin, UserRole.doctor])
-    @Patch('id')
+    @Patch(':id')
     async updateDoctor(@Param('id') id: string, @Body() dto: UpdateDoctorDto) {
         return await this.doctorService.updateDoctor(id, dto)
     }
 
-    @Protected(true)
-    @Roles([UserRole.admin, UserRole.doctor])
-    @Delete('id')
+    // @Protected(true)
+    // @Roles([UserRole.admin, UserRole.doctor])
+    @Delete(':id')
     async deleteDoctor(@Param('id') id: string) {
         return await this.doctorService.deleteDoctor(id)
     }

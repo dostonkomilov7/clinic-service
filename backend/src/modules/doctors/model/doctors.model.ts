@@ -21,7 +21,7 @@ export class Doctor extends Model {
     @Column({ type: DataType.STRING, allowNull: true })
     type: string;
 
-    @Column({ type: DataType.ENUM(...Object.values(DoctorStatus)), defaultValue: DoctorStatus.active  })
+    @Column({ type: DataType.ENUM(...Object.values(DoctorStatus)), defaultValue: DoctorStatus.active })
     status: DoctorStatus;
 
     @Column({ type: DataType.INTEGER, allowNull: true })
@@ -37,6 +37,9 @@ export class Doctor extends Model {
     @HasMany(() => Appointment)
     appointments: Appointment[]
 
-    @HasMany(() => Schedule)
+    @HasMany(() => Schedule, {
+        onDelete: 'CASCADE',
+        hooks: true
+    })
     schedules: Schedule[]
 }

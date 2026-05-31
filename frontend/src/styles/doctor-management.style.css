@@ -157,8 +157,8 @@
   }
 
   .nav-item .badge {
-      background: var(--coral-400);
-      color: #fff;
+      background: var(--coral-50);
+      color: var(--coral-400);
       font-size: 10px;
       font-weight: 600;
       padding: 2px 7px;

@@ -15,16 +15,14 @@ let otpValues: string[] = Array(TOTAL_DIGITS).fill('');
 let resendCount: number = 0;
 let autoVerifyTimeout: ReturnType<typeof setTimeout> | null = null;
 
-// DOM refs
-const inputs = Array.from({ length: TOTAL_DIGITS }, (_, i) =>
-    document.getElementById(`otp-${i}`) as HTMLInputElement
-);
-const verifyBtn = document.getElementById('verifyBtn') as HTMLButtonElement;
-const resendBtn = document.getElementById('resendBtn') as HTMLButtonElement;
-const otpStatus = document.getElementById('otpStatus') as HTMLElement;
-const timerNum = document.getElementById('timerNum') as HTMLElement;
-const timerArc = document.getElementById('timerArc') as Element;
-const resendBar = document.getElementById('resendBar') as HTMLElement;
+// DOM refs (initialized in init())
+let inputs: HTMLInputElement[] = [];
+let verifyBtn: HTMLButtonElement;
+let resendBtn: HTMLButtonElement;
+let otpStatus: HTMLElement;
+let timerNum: HTMLElement;
+let timerArc: Element;
+let resendBar: HTMLElement;
 
 // ─── Particles ───
 function initParticles(): void {
@@ -62,7 +60,7 @@ function initParticles(): void {
 function initEmailDisplay(): void {
     // In production, read from session/URL params
     const params = new URLSearchParams(window.location.search);
-    const email = params.get('email') || 'john.doe@example.com';
+    const email = params.get('email');
     const el = document.getElementById('displayEmail');
     if (el) el.textContent = email;
 }
@@ -183,29 +181,8 @@ function handleOTPFocus(idx: number): void {
     inputs[idx].select();
 }
 
-// ─── Attach OTP listeners ───
-inputs.forEach((inp, idx) => {
-    inp.addEventListener('input', (e) => handleOTPInput(e, idx));
-    inp.addEventListener('keydown', (e) => handleOTPKeydown(e as KeyboardEvent, idx));
-    inp.addEventListener('focus', () => handleOTPFocus(idx));
-    inp.addEventListener('paste', (e: ClipboardEvent) => {
-        e.preventDefault();
-        const text = (e.clipboardData?.getData('text') || '').replace(/\D/g, '').slice(0, inputs.length - idx);
-        if (!text) return;
 
-        text.split('').forEach((char, i) => {
-            const target = inputs[idx + i];
-            if (target) {
-                target.value = char;
-                target.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-        });
 
-        // Focus the next empty input after paste, or last one
-        const nextEmpty = inputs[idx + text.length];
-        (nextEmpty ?? inputs[inputs.length - 1]).focus();
-    });
-});
 
 // ─── Verify Handler ───
 async function handleVerify(): Promise<void> {
@@ -219,25 +196,22 @@ async function handleVerify(): Promise<void> {
     verifyBtn.innerHTML = '<div class="spinner"></div>';
     verifyBtn.disabled = true;
 
-    // Simulate API call
-    await new Promise<void>(resolve => setTimeout(resolve, 1200));
+    const email = new URLSearchParams(window.location.search).get('email');
 
-    const email = window.location.href.split('=').at(-1)
     const response = await fetch(`${apiUrl}/auth/activate`, {
         method: "POST",
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ email, code })
-    })
+    });
 
-    const res = await response.json()
+    const res = await response.json();
 
     if (res.success) {
         setCookie("accessToken", res?.accessToken);
         setCookie("refreshToken", res?.refreshToken);
-        setCookie("userId", res?.userId);
-        setCookie("userId", res?.role);
+        setCookie("role", res?.role);
         currentState = 'success';
         setInputState('success');
         setStatus('success', 'Code verified successfully!');
@@ -312,6 +286,7 @@ function showSuccessOverlay(): void {
 
 // ─── Resend Timer ───
 function startResendTimer(): void {
+    console.log('hello')
     resendSecondsLeft = RESEND_COOLDOWN;
     resendBtn.disabled = true;
 
@@ -412,19 +387,59 @@ function showToast(message: string, type: string = 'success'): void {
     }, 3500);
 }
 
+
 // ─── Init ───
 function init(): void {
+    inputs = Array.from({ length: TOTAL_DIGITS }, (_, i) =>
+        document.getElementById(`otp-${i}`) as HTMLInputElement
+    );
+    verifyBtn = document.getElementById('verifyBtn') as HTMLButtonElement;
+    resendBtn = document.getElementById('resendBtn') as HTMLButtonElement;
+    otpStatus = document.getElementById('otpStatus') as HTMLElement;
+    timerNum = document.getElementById('timerNum') as HTMLElement;
+    timerArc = document.getElementById('timerArc') as Element;
+    resendBar = document.getElementById('resendBar') as HTMLElement;
+
+    inputs.forEach((inp, idx) => {
+        inp.addEventListener('input', (e) => handleOTPInput(e, idx));
+        inp.addEventListener('keydown', (e) => handleOTPKeydown(e as KeyboardEvent, idx));
+        inp.addEventListener('focus', () => handleOTPFocus(idx));
+        inp.addEventListener('paste', (e: ClipboardEvent) => {
+            e.preventDefault();
+            const text = (e.clipboardData?.getData('text') || '').replace(/\D/g, '').slice(0, inputs.length - idx);
+            if (!text) return;
+            text.split('').forEach((char, i) => {
+                const target = inputs[idx + i];
+                if (target) {
+                    target.value = char;
+                    target.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            });
+            (inputs[idx + text.length] ?? inputs[inputs.length - 1]).focus();
+        });
+    });
+
     initParticles();
     initEmailDisplay();
     startResendTimer();
     inputs[0].focus();
-
-    // Hint toast after delay
-    setTimeout(() => {
-        showToast('💡  Demo: enter 4 8 2 7 1 6 to verify');
-    }, 2000);
 }
 
 document.addEventListener('DOMContentLoaded', init);
 
 (window as any).handleResend = handleResend;
+
+async function direct() {
+    const role = await cookieStore.get('role');
+    if (role?.value === 'Doctor') {
+        window.location.href = "/src/pages/doctor-dashboard";
+    } else if (role?.value === 'User') {
+        window.location.href = "/src/pages/user-dashboard";
+    } else if (role?.value === 'Admin') {
+        window.location.href = "/src/pages/doctor-management";
+    } else {
+        window.location.href = "/";
+    }
+}
+
+(window as any).direct = direct;

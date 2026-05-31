@@ -23,6 +23,7 @@ export class CreateDoctorDto {
     @IsInt()
     room_number: number;
     
+    @Type(() => Number)
     @IsInt()
     user_id: number
 }

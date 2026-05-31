@@ -1,6 +1,24 @@
-// import { redirectIfNotAuth } from "../main";
+import { redirectIfNotAuth } from "../main";
+import { MediAlert } from "./alert";
 
-// redirectIfNotAuth()
+redirectIfNotAuth()
+
+async function check() {
+    const ROLE = await cookieStore.get('role');
+    if (ROLE?.value !== 'User' && ROLE?.value !== 'Admin') {
+        MediAlert.modal({
+            type: 'error',
+            title: 'Access Denied',
+            message: 'You do not have permission to view this page.',
+            detail: 'Error code: 403 — Forbidden',
+            confirmText: 'Go Back',
+            cancelText: 'Contact Support',
+            onConfirm: () => window.history.back()
+        });
+    }
+}
+
+await check()
 
 // ── Types ──────────────────────────────────────────
 interface DoctorData {

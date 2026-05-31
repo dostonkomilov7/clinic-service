@@ -1,4 +1,4 @@
-import { redirectIfAuth } from "../main";
+import { redirectIfAuth, setCookie } from "../main";
 const apiUrl = import.meta.env.VITE_API_URL;
 
 redirectIfAuth()
@@ -107,7 +107,14 @@ async function handleRegister() {
     submitBtn.classList.add('loading');
     setTimeout(async () => {
         submitBtn.classList.remove('loading');
-        window.location.href = `/src/pages/verify-email?email=${email}`;
+        setCookie("userId", response?.userId);
+        setCookie("role", response?.role);
+        if(response.role === 'Doctor') {
+            window.location.href = `/src/pages/third-page?email=${email}`;
+        }
+        if(response.role === 'User' || response.role === 'Admin') {
+            window.location.href = `/src/pages/verify-email?email=${email}`;
+        }
         submitBtn.classList.remove('loading');
     }, 1500);
 }

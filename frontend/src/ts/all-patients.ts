@@ -1,6 +1,24 @@
-import { redirectIfNotAuth, userData } from "../main";
+import { redirectIfNotAuth, getUserData } from "../main";
+import { MediAlert } from "./alert";
 
-// redirectIfNotAuth();
+redirectIfNotAuth();
+
+async function check() {
+    const ROLE = await cookieStore.get('role');
+    if (ROLE?.value !== 'Doctor' && ROLE?.value !== 'Admin') {
+        MediAlert.modal({
+            type: 'error',
+            title: 'Access Denied',
+            message: 'You do not have permission to view this page.',
+            detail: 'Error code: 403 — Forbidden',
+            confirmText: 'Go Back',
+            cancelText: 'Contact Support',
+            onConfirm: () => window.history.back()
+        });
+    }
+}
+
+await check()
 
 const COLORS = ['#1D9E75', '#378ADD', '#D85A30', '#EF9F27', '#8B7EF8', '#34C97A', '#E0608A', '#22C5D9', '#F07B3F'];
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -18,12 +36,12 @@ const topAvtr = document.querySelector('.avatar-btn');
 
 const fullDate = String(new Date().toDateString()).split(' ');
 
+const userData = await getUserData();
 name!.textContent = userData.users[0].full_name;
 topAvtr!.textContent = userData.users[0].full_name[0].toUpperCase();
 doctorAvtr!.textContent = userData.users[0].full_name[0].toUpperCase();
 role!.textContent = `${userData.users[0]?.doctors[0].specialization} • Room: ${userData.users[0]?.doctors[0].room_number}`
 topSub!.textContent = `Dr ${userData.users[0].full_name} • ${userData.users[0]?.doctors[0].department} • ${fullDate.join(", ")}`
-console.log(data.doctors[0].appointments)
 
 const PER_PAGE: number = 8;
 let currentPage: number = 1;
@@ -268,10 +286,10 @@ async function cancelAppointment(id: string, status: string) {
 
         const response = await res.json();
 
-        if(!response.success) {
+        if (!response.success) {
             return showToast(response.message, "info")
         }
-        
+
         showToast(response.message, "info");
         window.location.reload()
     } else {
@@ -282,19 +300,19 @@ async function cancelAppointment(id: string, status: string) {
 async function updateAppointment(id: string, status: string) {
     if (status === 'Completed') {
         return showToast('Appointment has been completed', "info")
-    } else if(status === 'Cancelled') {
+    } else if (status === 'Cancelled') {
         return showToast('Appointment has been cancelled', "info")
     } else {
         const res = await fetch(`${apiUrl}/appointments/${id}`, {
             method: 'PATCH',
         });
-    
+
         const response = await res.json();
-    
-        if(!response.success) {
+
+        if (!response.success) {
             return showToast(response.message, "info")
         }
-        
+
         showToast(response.message, "info")
         window.location.reload()
     }
@@ -340,13 +358,13 @@ const signOut = () => {
 //     </div>
 //     </div>
 //     </div>
-    
+
 //     <div class="kpi-row">
 //     <div class="kpi-box"><div class="kv">${p.visits}</div><div class="kl">Total Visits</div></div>
 //     <div class="kpi-box"><div class="kv">${p.lastVisit}</div><div class="kl">Last Visit</div></div>
 //     <div class="kpi-box"><div class="kv">${p.nextAppt}</div><div class="kl">Next Appt</div></div>
 //     </div>
-    
+
 //     <div class="info-section">
 //     <h4>Contact & Identity</h4>
 //     <div class="info-grid">
@@ -355,7 +373,7 @@ const signOut = () => {
 //     <div class="info-box full"><div class="ib-lbl">Email</div><div class="ib-val">${p.email}</div></div>
 //     </div>
 //     </div>
-    
+
 //     <div class="info-section">
 //     <h4>Clinical Data</h4>
 //     <div class="info-grid">
@@ -366,14 +384,14 @@ const signOut = () => {
 //     <div class="info-box full"><div class="ib-lbl">Primary Condition</div><div class="ib-val">${p.condition}</div></div>
 //     </div>
 //     </div>
-    
+
 //     <div class="info-section">
 //     <h4>Doctor's Notes</h4>
 //     <div class="info-box full" style="grid-column:1/-1;">
 //     <div class="ib-val" style="font-weight:400;font-size:13px;color:var(--gray-600);line-height:1.65;">${p.notes}</div>
 //     </div>
 //     </div>
-    
+
 //     <div class="info-section">
 //     <h4>Visit History (${p.history.length})</h4>
 //     <div class="visit-list">

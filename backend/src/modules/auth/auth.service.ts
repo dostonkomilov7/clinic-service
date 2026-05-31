@@ -48,7 +48,7 @@ export class AuthService {
                 phone: dto.phone,
                 password: hashedPassword,
                 otp: activationCode,
-                role: UserRole.admin,
+                role: dto.role,
                 status: UserStatus.inactive,
             })
 
@@ -65,7 +65,7 @@ export class AuthService {
             return res.send({
                 success: true,
                 userId: newUser.id,
-                message: "Code is successfully sent"
+                role: newUser.dataValues.role,
             })
 
         } catch (error) {
@@ -126,7 +126,7 @@ export class AuthService {
     }
 
     async activateUser(email: string, code: string, res: Response) {
-        const existingUser = await this.userModel.findOne({ where: { email: email } });
+        const existingUser = await this.userModel.findOne({ where: { email } });
 
         if (!existingUser) {
             res.send({

@@ -1,6 +1,26 @@
-// import { redirectIfNotAuth } from "../main";
+import { redirectIfNotAuth } from "../main";
 
-// redirectIfNotAuth();
+import { MediAlert } from "./alert";
+
+redirectIfNotAuth();
+
+async function check() {
+    const ROLE = await cookieStore.get('role');
+    if (ROLE?.value !== 'Admin') {
+        MediAlert.modal({
+            type: 'error',
+            title: 'Access Denied',
+            message: 'You do not have permission to view this page.',
+            detail: 'Error code: 403 — Forbidden',
+            confirmText: 'Go Back',
+            cancelText: 'Contact Support',
+            onConfirm: () => window.history.back()
+        });
+    }
+    return
+}
+
+await check()
 
 /* ─── DATA ─── */
 const DEPTS = [

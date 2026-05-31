@@ -96,23 +96,22 @@ export class DoctorService {
                 user_id: dto.user_id,
             })
 
-            const accessToken = await this.generateAccessToken({ id: newDoctor.dataValues.user_id, role: UserRole.doctor })
-            const refreshToken = await this.generateRefreshToken({ id: newDoctor.dataValues.user_id, role: UserRole.doctor })
+            // const accessToken = await this.generateAccessToken({ id: newDoctor.dataValues.user_id, role: UserRole.doctor })
+            // const refreshToken = await this.generateRefreshToken({ id: newDoctor.dataValues.user_id, role: UserRole.doctor })
 
-            res.cookie('accessToken', accessToken, {
-                signed: true,
-                maxAge: this.configService.get('jwt.access_time') * 1000,
-            })
+            // res.cookie('accessToken', accessToken, {
+            //     signed: true,
+            //     maxAge: this.configService.get('jwt.access_time') * 1000,
+            // })
 
-            res.cookie('refreshToken', refreshToken, {
-                signed: true,
-                maxAge: 7 * 24 * 60 * 60 * 1000,
-            })
+            // res.cookie('refreshToken', refreshToken, {
+            //     signed: true,
+            //     maxAge: 7 * 24 * 60 * 60 * 1000,
+            // })
 
             return res.send({
                 success: true,
-                accessToken,
-                refreshToken
+                userId: newDoctor.id,
             })
         } catch (error) {
             console.log(error)

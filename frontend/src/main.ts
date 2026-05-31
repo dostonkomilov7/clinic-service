@@ -1,9 +1,11 @@
 const apiUrl = import.meta.env.VITE_API_URL;
 
-const userId = await cookieStore.get("userId")
-const res = await fetch(`${apiUrl}/users/${userId?.value}`)
-
-export const userData = await res.json();
+export const getUserData = async () => {
+    const userId = await cookieStore.get("userId");
+    if (!userId?.value) return null;
+    const res = await fetch(`${apiUrl}/users/${userId.value}`);
+    return res.json();
+};
 
 export const setCookie = (name: string, value: string) => {
     document.cookie = `${name}=${value}; path=/`;

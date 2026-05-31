@@ -1,6 +1,25 @@
-import { redirectIfNotAuth, setCookie, userData } from "../main";
+import { redirectIfNotAuth, setCookie, getUserData } from "../main";
+import { MediAlert } from "./alert";
 
-// redirectIfNotAuth();
+redirectIfNotAuth();
+
+async function check() {
+    const ROLE = await cookieStore.get('role');
+    if (ROLE?.value !== 'Admin') {
+        MediAlert.modal({
+            type: 'error',
+            title: 'Access Denied',
+            message: 'You do not have permission to view this page.',
+            detail: 'Error code: 403 — Forbidden',
+            confirmText: 'Go Back',
+            cancelText: 'Contact Support',
+            onConfirm: () => window.history.back()
+        });
+    }
+}
+
+await check()
+
 const apiUrl = import.meta.env.VITE_API_URL;
 
 /* ─── DATA ─── */
@@ -20,6 +39,7 @@ const totalInactives = document.querySelector('.total-inc');
 // const totalAppointments = document.querySelector('.total-app');
 const fullDate = String(new Date().toDateString()).split(' ');
 
+const userData = await getUserData();
 name!.textContent = userData.users[0].full_name;
 topTitle!.textContent = `MediBook Admin Panel · ${fullDate.join(', ')}`;
 topAvtr!.textContent = userData.users[0].full_name[0].toUpperCase();
@@ -52,7 +72,7 @@ function renderTable() {
   } else {
     tbody.innerHTML = slice.map(d => {
       const specClass = SPEC_CLASS[d.specialization] || 'general';
-      const statusClass = d.user.status.toLowerCase();
+      const statusClass = d.user?.status.toLowerCase();
       const stars = '★'.repeat(Math.round(4.9)) + '☆'.repeat(5 - Math.round(4.9));
       const isSelected = selectedIds.has(d.id);
 
@@ -60,26 +80,26 @@ function renderTable() {
         <td class="cb-wrap"><input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleRow(event,'${d.id}')" onclick="event.stopPropagation()" style="width:16px;height:16px;accent-color:var(--teal-400);cursor:pointer;"></td>
         <td>
           <div class="doc-cell">
-            <div class="doc-av" style="background:${COLORS[Math.floor(0 + Math.random() * 9)]}">${d.user.full_name[0].toUpperCase()}</div>
-            <div><div class="doc-name">${d.user.full_name}</div><div class="doc-id">ID: ${d.id} · ${d.user.email}</div></div>
+            <div class="doc-av" style="background:${COLORS[Math.floor(0 + Math.random() * 9)]}">${d.user?.full_name[0].toUpperCase()}</div>
+            <div><div class="doc-name">${d.user?.full_name}</div><div class="doc-id">ID: ${d.id} · ${d.user?.email}</div></div>
           </div>
         </td>
         <td><span class="spec-badge ${specClass}">${d.specialization}</span></td>
         <td style="color:var(--text-2);font-size:13px;">${d.type}</td>
         <td><div class="rating-cell"><span class="stars">${stars}</span><span class="rating-val">4.9</span></div></td>
         <td style="color:var(--text-2);font-size:13px;">${strAge(d.createdAt)}</td>
-        <td><span class="status-pill ${statusClass}">${d.user.status}</span></td>
+        <td><span class="status-pill ${statusClass}">${d.user?.status}</span></td>
         <td>
           <div class="row-actions">
-            <button class="row-btn view" title="View" onclick="event.stopPropagation();openViewDrawer('${d.id}')"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-            <button class="row-btn edit" title="Edit" onclick="event.stopPropagation();openEditDrawer('${d.id}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
             <button class="row-btn del"  title="Delete" onclick="event.stopPropagation();openDeleteModal('${d.id}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>
           </div>
         </td>
       </tr>`;
     }).join('');
   }
-
+  // Soon
+  // <button class="row-btn view" title="View" onclick="event.stopPropagation();openViewDrawer('${d.id}')"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+  // <button class="row-btn edit" title="Edit" onclick="event.stopPropagation();openEditDrawer('${d.id}')"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
   const total = filtered.length;
   const s = (currentPage - 1) * PER_PAGE + 1;
   const e = Math.min(s + PER_PAGE - 1, total);
@@ -430,15 +450,28 @@ function openDeleteModal(id: string) {
 function closeDeleteModal() {
   document.getElementById('delete-modal')!.classList.remove('open');
   deleteTargetId = null;
+  setTimeout(() => {
+    window.location.reload();
+  }, 1700);
 }
 
 function handleDeleteOverlay(e: MouseEvent) {
   if (e.target === document.getElementById('delete-modal')) closeDeleteModal();
 }
 
-function confirmDelete() {
+async function confirmDelete() {
   const d = doctorsData.find(x => x.id === deleteTargetId);
   showToast(`${d ? d.user.full_name : 'Doctor'} has been removed.`, 'error');
+  const res = await fetch(`${apiUrl}/doctors/${deleteTargetId}`, {
+    method: 'DELETE',
+  })
+
+  const response = await res.json();
+
+  if(!response.success) {
+    showToast(`${d ? d.user.full_name : 'Doctor'} has not been removed.`, 'error');
+
+  }
   closeDeleteModal();
   renderTable();
 }

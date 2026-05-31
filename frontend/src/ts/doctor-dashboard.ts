@@ -1,6 +1,25 @@
-import { redirectIfNotAuth, userData } from "../main";
+import { redirectIfNotAuth, getUserData } from "../main";
+import { MediAlert } from "./alert";
 
-// redirectIfNotAuth();
+redirectIfNotAuth();
+
+async function check() {
+    const ROLE = await cookieStore.get('role');
+    if (ROLE?.value !== 'Admin' && ROLE?.value !== 'Doctor') {
+        MediAlert.modal({
+            type: 'error',
+            title: 'Access Denied',
+            message: 'You do not have permission to view this page.',
+            detail: 'Error code: 403 — Forbidden',
+            confirmText: 'Go Back',
+            cancelText: 'Contact Support',
+            onConfirm: () => window.history.back()
+        });
+    }
+    return
+}
+
+await check()
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -15,6 +34,8 @@ const recentPatients = document.querySelector('.recent-patients');
 const fullDate = String(new Date().toDateString()).split(' ');
 
 titleDate!.textContent = fullDate.join(", ");
+
+const userData = await getUserData();
 name!.textContent = userData.users[0].full_name;
 titleName!.textContent = userData.users[0].full_name;
 topDepart!.textContent = userData.users[0]?.doctors[0].department;

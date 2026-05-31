@@ -26,6 +26,7 @@ export class ScheduleService {
     async createSchedule(dto: CreateScheduleDto) {
         try {
             await this.scheduleService.create({
+                doctor_id: dto.doctor_id,
                 work_day: dto.work_day,
                 start_time: dto.start_time,
                 end_time: dto.end_time

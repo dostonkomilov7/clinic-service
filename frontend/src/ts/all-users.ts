@@ -1,6 +1,27 @@
-// import { redirectIfNotAuth } from "../main";
+import { redirectIfNotAuth } from "../main";
 
-// redirectIfNotAuth()
+import { getUserData } from "../main";
+import { MediAlert } from "./alert";
+
+redirectIfNotAuth()
+
+async function check() {
+    const ROLE = await cookieStore.get('role');
+    if (ROLE?.value !== 'Admin') {
+        MediAlert.modal({
+            type: 'error',
+            title: 'Access Denied',
+            message: 'You do not have permission to view this page.',
+            detail: 'Error code: 403 — Forbidden',
+            confirmText: 'Go Back',
+            cancelText: 'Contact Support',
+            onConfirm: () => window.history.back()
+        });
+        return
+    }
+}
+
+await check()
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -51,12 +72,23 @@ const totalPatients = document.getElementById('stat-patients');
 const totalActives = document.getElementById('stat-active');
 const totalInactives = document.getElementById('stat-inactive');
 const totalUsers = document.getElementById('stat-total');
+const name = document.querySelector('.name');
+const adminAvtr = document.querySelector('.admin-av');
+const topTitle = document.querySelector('.topbar-sub');
+const topAvtr = document.querySelector('.topbar-av');
+const fullDate = String(new Date().toDateString()).split(' ');
 
 totalDoctors!.textContent = data.countDoctors;
 totalPatients!.textContent = data.countPatients;
 totalActives!.textContent = String(data.countActive - 1);
 totalInactives!.textContent = data.countInactive;
 totalUsers!.textContent = data.users.count;
+const userData = await getUserData();
+name!.textContent = userData.users[0].full_name;
+topTitle!.textContent = `MediBook Admin Panel · ${fullDate.join(', ')}`;
+topAvtr!.textContent = userData.users[0].full_name[0].toUpperCase();
+adminAvtr!.textContent = userData.users[0].full_name[0].toUpperCase();
+
 // ═══════════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════════
@@ -161,7 +193,7 @@ function renderTable(list: any): void {
       </td>
       <td>
         <div class="user-cell">
-          <div class="user-av" style="background:${['#1D9E75','#378ADD','#D85A30','#EF9F27','#8B7EF8'][u.id % 5]};">${u.full_name[0].toUpperCase()}</div>
+          <div class="user-av" style="background:${['#1D9E75', '#378ADD', '#D85A30', '#EF9F27', '#8B7EF8'][u.id % 5]};">${u.full_name[0].toUpperCase()}</div>
           <div>
             <div class="user-name">${u.full_name}</div>
             <div class="user-email">${u.email}</div>
@@ -175,15 +207,6 @@ function renderTable(list: any): void {
       <td style="font-family:var(--font-display);font-size:17px;color:var(--text-1);">0 appointments</td>
       <td onclick="event.stopPropagation()">
         <div class="tbl-actions">
-          <button class="tbl-btn view" title="View" onclick="openViewDrawer('${u.id}')">
-            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button>
-          <button class="tbl-btn edit" title="Edit" onclick="openEditDrawer('${u.id}')">
-            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </button>
-          <button class="tbl-btn sus" title="${u.status === 'suspended' ? 'Unsuspend' : 'Suspend'}" onclick="toggleSuspend('${u.id}')">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-          </button>
           <button class="tbl-btn del" title="Delete" onclick="openDelModal('${u.id}')">
             <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
           </button>
@@ -192,6 +215,17 @@ function renderTable(list: any): void {
     </tr>`;
   }).join('');
 }
+
+// SOON
+// <button class="tbl-btn view" title="View" onclick="openViewDrawer('${u.id}')">
+//   <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+// </button>
+// <button class="tbl-btn edit" title="Edit" onclick="openEditDrawer('${u.id}')">
+//   <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+// </button>
+// <button class="tbl-btn sus" title="${u.status === 'suspended' ? 'Unsuspend' : 'Suspend'}" onclick="toggleSuspend('${u.id}')">
+//   <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+// </button>
 
 // ── CARDS ──
 function renderCards(list: User[]): void {
@@ -204,7 +238,7 @@ function renderCards(list: User[]): void {
       <div class="uc-top" style="background:${topColor};"></div>
       <div class="uc-body">
         <div class="uc-head">
-          <div class="uc-av" style="background:${['#1D9E75','#378ADD','#D85A30','#EF9F27','#8B7EF8'][(u.id) as any % 5]};">
+          <div class="uc-av" style="background:${['#1D9E75', '#378ADD', '#D85A30', '#EF9F27', '#8B7EF8'][(u.id) as any % 5]};">
             ${u.full_name[0].toUpperCase()}
           </div>
           <div class="uc-info">
@@ -233,12 +267,6 @@ function renderCards(list: User[]): void {
         </div>
         <div class="uc-footer">
           <div class="uc-actions" onclick="event.stopPropagation()">
-            <button class="tbl-btn view" title="View" onclick="openViewDrawer('${u.id}')">
-              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-            <button class="tbl-btn edit" title="Edit" onclick="openEditDrawer('${u.id}')">
-              <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            </button>
             <button class="tbl-btn del" title="Delete" onclick="openDelModal('${u.id}')">
               <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
             </button>
@@ -248,6 +276,14 @@ function renderCards(list: User[]): void {
     </div>`;
   }).join('');
 }
+
+// SOON
+// <button class="tbl-btn view" title="View" onclick="openViewDrawer('${u.id}')">
+//   <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+// </button>
+// <button class="tbl-btn edit" title="Edit" onclick="openEditDrawer('${u.id}')">
+//   <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+// </button>
 
 // ── PAGINATION ──
 function renderPagination(pages: number): void {
@@ -497,12 +533,25 @@ function openDelModal(id: string): void {
   $('delModal')!.classList.add('open');
 }
 function closeDelModal(): void { $('delModal')!.classList.remove('open'); state.deletingId = null; }
-function confirmDel(): void {
+async function confirmDel() {
   if (!state.deletingId) return;
   const idx = ALL_USERS.findIndex((u: any) => u.id === state.deletingId);
   const name = ALL_USERS[idx]?.full_name ?? 'User';
   if (idx > -1) ALL_USERS.splice(idx, 1);
   state.selected.delete(state.deletingId!);
+  console.log(state.deletingId)
+
+  const res = await fetch(`${apiUrl}/users/${state.deletingId}`, {
+    method: 'DELETE',
+  })
+
+  const response = await res.json();
+
+  if (!response.success) {
+    showToast(`${name || 'User'} has not been removed.`, 'error');
+
+  }
+
   closeDelModal();
   render();
   showToast(`${name} deleted.`, 'error');
@@ -629,9 +678,9 @@ function initEvents(): void {
   $('delModal')!.addEventListener('click', (e) => { if ((e.target as HTMLElement).id === 'delModal') closeDelModal(); });
 
   // Add / export buttons
-  $('addUserBtn')!.addEventListener('click', () => showToast('Add user flow — connect to your backend.', 'info'));
-  $('emptyAddBtn')!.addEventListener('click', () => showToast('Add user flow — connect to your backend.', 'info'));
-  $('exportBtn')!.addEventListener('click', () => showToast('CSV exported.', 'success'));
+  // $('addUserBtn')!.addEventListener('click', () => showToast('Add user flow — connect to your backend.', 'info'));
+  // $('emptyAddBtn')!.addEventListener('click', () => showToast('Add user flow — connect to your backend.', 'info'));
+  // $('exportBtn')!.addEventListener('click', () => showToast('CSV exported.', 'success'));
 }
 
 // Expose globals used inline in HTML
