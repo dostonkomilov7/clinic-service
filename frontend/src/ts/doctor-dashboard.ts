@@ -71,6 +71,12 @@ async function getDoctorApp() {
     });
 }
 
+async function accessTelegram() {
+    const userId = await cookieStore.get('userId');
+
+    window.location.href = `https://t.me/medibook_clinic_bot?start=${userId?.value}`;
+}
+
 function getAge(age: string) {
     const userAge = new Date().getFullYear() - new Date(age).getFullYear()
 
@@ -113,3 +119,4 @@ const signOut = () => {
 getDoctorApp();
 
 (window as any).signOut = signOut;
+(window as any).accessTelegram = accessTelegram;

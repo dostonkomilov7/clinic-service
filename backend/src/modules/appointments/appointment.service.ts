@@ -6,6 +6,7 @@ import { UpdateAppointmentDto } from "./dto/update.appointment.dto";
 import { User } from "../users/model/user.model";
 import { Doctor } from "../doctors/model/doctors.model";
 import { AppointmentStatus } from "@/core/constants/constants";
+import { Op } from "sequelize";
 
 @Injectable()
 export class AppointmentService {
@@ -33,10 +34,38 @@ export class AppointmentService {
                 ]
             })
 
-            const totalUpcoming = await this.appointmentModel.count({where: {status: 'Confirmed'}});
-            const totalPending = await this.appointmentModel.count({where: {status: 'Pending'}});
-            const totalCompleted = await this.appointmentModel.count({where: {status: 'Completed'}});
-            const totalCancelled = await this.appointmentModel.count({where: {status: 'Cancelled'}});
+            const totalUpcoming = await this.appointmentModel.count({
+                where: {
+                    [Op.and]: [
+                        { id: id },
+                        { status: 'Confirmed' }
+                    ]
+                }
+            });
+            const totalPending = await this.appointmentModel.count({
+                where: {
+                    [Op.and]: [
+                        { id: id },
+                        { status: 'Pending' }
+                    ]
+                }
+            });
+            const totalCompleted = await this.appointmentModel.count({
+                where: {
+                    [Op.and]: [
+                        { id: id },
+                        { status: 'Completed' }
+                    ]
+                }
+            });
+            const totalCancelled = await this.appointmentModel.count({
+                where: {
+                    [Op.and]: [
+                        { id: id },
+                        { status: 'Cancelled' }
+                    ]
+                }
+            });
 
             return {
                 success: true,
@@ -81,10 +110,10 @@ export class AppointmentService {
                 throw new NotFoundException("Appointment is not found")
             }
 
-            if(existing.dataValues.status === 'Pending') {
-                await this.appointmentModel.update({status: AppointmentStatus.CONFIRMED}, { where: { id } })
+            if (existing.dataValues.status === 'Pending') {
+                await this.appointmentModel.update({ status: AppointmentStatus.CONFIRMED }, { where: { id } })
             } else {
-                await this.appointmentModel.update({status: AppointmentStatus.COMPLETED}, { where: { id } })
+                await this.appointmentModel.update({ status: AppointmentStatus.COMPLETED }, { where: { id } })
             }
 
             return {
@@ -106,7 +135,7 @@ export class AppointmentService {
                 throw new NotFoundException("Appointment is not found")
             }
 
-            await this.appointmentModel.update({status: AppointmentStatus.CANCELLED}, { where: { id } })
+            await this.appointmentModel.update({ status: AppointmentStatus.CANCELLED }, { where: { id } })
 
             return {
                 success: true,

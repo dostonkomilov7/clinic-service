@@ -21,8 +21,5 @@ export class RegisterDto {
     
     @IsString()
     phone: string;
-    
-    @IsOptional()
-    @IsInt()
-    telegram_id: number;
+
 }

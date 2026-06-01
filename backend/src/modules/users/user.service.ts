@@ -19,7 +19,7 @@ export class UserService {
                 }
             })
 
-            const countActive = await this.userModel.count({where: { status: 'Active' }});
+            const countActive = await this.userModel.count({ where: { status: 'Active' } });
             const countInactive = await this.userModel.count({ where: { status: 'Inactive' } });
             const countDoctors = await this.userModel.count({ where: { role: 'Doctor' } });
             const countPatients = await this.userModel.count({ where: { role: 'User' } });
@@ -43,7 +43,12 @@ export class UserService {
         try {
             const users = await this.userModel.findAll({
                 include: [Doctor],
-                where: { id }
+                where: {
+                    [Op.or]: [
+                        { id: id },
+                        { telegram_id: id }
+                    ]
+                }
             })
 
             return {
@@ -59,6 +64,7 @@ export class UserService {
 
     async updateUser(id: string, dto: UpdateUserDto) {
         try {
+
             const user = await this.userModel.findOne({ where: { id } })
 
             if (!user) {

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import {SequelizeModule} from "@nestjs/sequelize"
-import {ConfigModule} from "@nestjs/config"
+import { SequelizeModule } from "@nestjs/sequelize"
+import { ConfigModule, ConfigService } from "@nestjs/config"
 import { UserModule } from './modules/users/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { validate } from './core/config/env-validation';
@@ -11,6 +11,9 @@ import { AppointmentModule } from './modules/appointments/appointment.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './common/guards/auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
+import { TelegrafModule } from 'nestjs-telegraf';
+import { session } from 'telegraf';
+import { BotModule } from './modules/telegram/bot.module';
 
 @Module({
   imports: [
@@ -36,11 +39,19 @@ import { RolesGuard } from './common/guards/roles.guard';
       },
       autoLoadModels: true,
     }),
+    TelegrafModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => ({
+        token: config.get<string>("TELEGRAM_BOT_TOKEN") as string,
+        middlewares: [session()]
+      })
+    }),
     UserModule,
     AuthModule,
     ScheduleModule,
     DoctorModule,
     AppointmentModule,
+    BotModule,
   ],
   providers: [
     {
@@ -53,4 +64,4 @@ import { RolesGuard } from './common/guards/roles.guard';
     }
   ]
 })
-export class AppModule {}
+export class AppModule { }

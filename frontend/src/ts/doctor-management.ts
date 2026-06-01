@@ -4,18 +4,18 @@ import { MediAlert } from "./alert";
 redirectIfNotAuth();
 
 async function check() {
-    const ROLE = await cookieStore.get('role');
-    if (ROLE?.value !== 'Admin') {
-        MediAlert.modal({
-            type: 'error',
-            title: 'Access Denied',
-            message: 'You do not have permission to view this page.',
-            detail: 'Error code: 403 — Forbidden',
-            confirmText: 'Go Back',
-            cancelText: 'Contact Support',
-            onConfirm: () => window.history.back()
-        });
-    }
+  const ROLE = await cookieStore.get('role');
+  if (ROLE?.value !== 'Admin') {
+    MediAlert.modal({
+      type: 'error',
+      title: 'Access Denied',
+      message: 'You do not have permission to view this page.',
+      detail: 'Error code: 403 — Forbidden',
+      confirmText: 'Go Back',
+      cancelText: 'Contact Support',
+      onConfirm: () => window.history.back()
+    });
+  }
 }
 
 await check()
@@ -75,6 +75,8 @@ function renderTable() {
       const statusClass = d.user?.status.toLowerCase();
       const stars = '★'.repeat(Math.round(4.9)) + '☆'.repeat(5 - Math.round(4.9));
       const isSelected = selectedIds.has(d.id);
+
+      console.log(statusClass)
 
       return `<tr class="${isSelected ? 'selected' : ''}" onclick="handleRowClick(event,'${d.id}')">
         <td class="cb-wrap"><input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleRow(event,'${d.id}')" onclick="event.stopPropagation()" style="width:16px;height:16px;accent-color:var(--teal-400);cursor:pointer;"></td>
@@ -227,7 +229,7 @@ function openViewDrawer(id: string) {
   (document.getElementById('drawer-save-btn') as HTMLButtonElement).onclick = () => openEditDrawer(id);
 
   const specClass = SPEC_CLASS[d.department] || 'general';
-  const statusClass = d.status.toLowerCase();
+  const statusClass = d.user.status.toLowerCase();
 
   document.getElementById('drawer-body')!.innerHTML = `
     <div class="drawer-doc-profile">
@@ -455,6 +457,12 @@ function closeDeleteModal() {
   }, 1700);
 }
 
+async function accessTelegram() {
+  const userId = await cookieStore.get('userId');
+
+  window.location.href = `https://t.me/medibook_clinic_bot?start=${userId?.value}`;
+}
+
 function handleDeleteOverlay(e: MouseEvent) {
   if (e.target === document.getElementById('delete-modal')) closeDeleteModal();
 }
@@ -468,7 +476,7 @@ async function confirmDelete() {
 
   const response = await res.json();
 
-  if(!response.success) {
+  if (!response.success) {
     showToast(`${d ? d.user.full_name : 'Doctor'} has not been removed.`, 'error');
 
   }
@@ -518,6 +526,7 @@ function showToast(msg: string, type = 'success') {
 (window as any).showToast = showToast;
 (window as any).goToPage = goToPage;
 (window as any).changePage = changePage;
+(window as any).accessTelegram = accessTelegram;
 (window as any).signOut = signOut;
 
 /* ─── ESC ─── */

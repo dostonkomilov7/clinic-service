@@ -503,7 +503,7 @@ async function handleNext() {
 
     setTimeout(async () => {
         // const userId = await cookieStore.get("userId")
-        window.location.href = `/src/pages/verify-email?uemail=${email}`;
+        window.location.href = `/src/pages/verify-email?email=${email}`;
     }, 1500);
 }
 

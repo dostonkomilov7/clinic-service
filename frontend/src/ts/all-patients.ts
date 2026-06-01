@@ -13,6 +13,7 @@ async function check() {
             detail: 'Error code: 403 — Forbidden',
             confirmText: 'Go Back',
             cancelText: 'Contact Support',
+            theme: 'dark',
             onConfirm: () => window.history.back()
         });
     }

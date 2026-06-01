@@ -23,8 +23,8 @@ export class User extends Model {
     @Column({ type: DataType.STRING(6), allowNull: true })
     otp: string;
 
-    // @Column({type: DataType.STRING, allowNull: false, unique: true})
-    // telgram_id: string;
+    @Column({type: DataType.STRING, allowNull: true, unique: true})
+    telegram_id: string;
 
     @Column({ type: DataType.ENUM(...Object.values(UserRole)), defaultValue: UserRole.user })
     role: UserRole;

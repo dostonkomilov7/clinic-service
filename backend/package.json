@@ -34,6 +34,7 @@
     "handlebars": "^4.7.9",
     "imagekit": "^6.0.0",
     "multer": "^2.1.1",
+    "nestjs-telegraf": "^2.9.1",
     "nodemailer": "^8.0.7",
     "pg": "^8.21.0",
     "pg-hstore": "^2.3.4",
@@ -41,7 +42,8 @@
     "rxjs": "^7.8.1",
     "sequelize": "^6.37.8",
     "sequelize-typescript": "^2.1.6",
-    "signed": "^2.1.0"
+    "signed": "^2.1.0",
+    "telegraf": "^4.16.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "latest",

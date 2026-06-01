@@ -166,7 +166,7 @@
           </div>
           <div class="welcome-actions">
             <a href="book-appointment"><button class="btn-white">+ Book Appointment</button></a>
-            <button class="btn-outline-white">View Records</button>
+            <button class="btn-outline-white" onclick="accessTelegram()">Go To Telegram</button>
           </div>
         </div>
 
@@ -252,7 +252,7 @@
                   </tr>
                 </thead>
                 <tbody class="app-list">
-                  
+
                 </tbody>
               </table>
 
@@ -391,6 +391,15 @@
       </div>
     </div>
   </div>
+
+  <div class="modal-overlay" id="mediModalOverlay" onclick="MediAlert._handleOverlayClick(event)">
+    <div class="modal-box" id="mediModalBox">
+      <div class="modal-icon-area" id="mediModalIconArea"></div>
+      <div class="modal-detail" id="mediModalDetail" style="display:none;"></div>
+      <div class="modal-footer" id="mediModalFooter"></div>
+    </div>
+  </div>
+  <div class="toast-stack" id="toastStack"></div>
 
   <script src="../ts/user-dashboard.ts" type="module"></script>
 </body>

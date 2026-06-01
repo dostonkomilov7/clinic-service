@@ -216,13 +216,16 @@
         <!-- Filter bar -->
         <div class="filter-bar">
           <div class="tabs">
-            <button class="tab-btn active" onclick="filterTab(this,'all')">All <span class="count" id="all-count">0</span></button>
-            <button class="tab-btn" onclick="filterTab(this,'upcoming')">Upcoming <span class="count" id="upcoming-count">0</span></button>
-            <button class="tab-btn" onclick="filterTab(this,'pending')">Pending <span class="count" id="pending-count">0</span></button>
-            <button class="tab-btn" onclick="filterTab(this,'completed')">Completed <span
-                class="count" id="completed-count">0</span></button>
-            <button class="tab-btn" onclick="filterTab(this,'cancelled')">Cancelled <span
-                class="count" id="cancelled-count">0</span></button>
+            <button class="tab-btn active" onclick="filterTab(this,'all')">All <span class="count"
+                id="all-count">0</span></button>
+            <button class="tab-btn" onclick="filterTab(this,'upcoming')">Upcoming <span class="count"
+                id="upcoming-count">0</span></button>
+            <button class="tab-btn" onclick="filterTab(this,'pending')">Pending <span class="count"
+                id="pending-count">0</span></button>
+            <button class="tab-btn" onclick="filterTab(this,'completed')">Completed <span class="count"
+                id="completed-count">0</span></button>
+            <button class="tab-btn" onclick="filterTab(this,'cancelled')">Cancelled <span class="count"
+                id="cancelled-count">0</span></button>
           </div>
           <div class="filter-right">
             <select class="filter-select" onchange="filterSort(this.value)">
@@ -426,6 +429,15 @@
     </div>
 
   </div>
+
+  <div class="modal-overlay" id="mediModalOverlay" onclick="MediAlert._handleOverlayClick(event)">
+    <div class="modal-box" id="mediModalBox">
+      <div class="modal-icon-area" id="mediModalIconArea"></div>
+      <div class="modal-detail" id="mediModalDetail" style="display:none;"></div>
+      <div class="modal-footer" id="mediModalFooter"></div>
+    </div>
+  </div>
+  <div class="toast-stack" id="toastStack"></div>
 
   <script src="../ts/my-appointments.ts" type="module"></script>
 

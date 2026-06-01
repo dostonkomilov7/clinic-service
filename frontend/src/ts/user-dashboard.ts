@@ -92,6 +92,12 @@ async function getAppointments() {
   }
 }
 
+async function accessTelegram() {
+  const userId = await cookieStore.get('userId');
+
+  window.location.href = `https://t.me/medibook_clinic_bot?start=${userId?.value}`;
+}
+
 const signOut = () => {
   cookieStore.delete('accessToken')
   cookieStore.delete('refreshToken')
@@ -103,7 +109,7 @@ const signOut = () => {
   window.location.href = '/'
 }
 
-
+(window as any).accessTelegram = accessTelegram;
 (window as any).signOut = signOut;
 
 getAppointments();

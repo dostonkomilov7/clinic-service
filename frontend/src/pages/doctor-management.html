@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MediBook Admin — Doctors Management</title>
   <link rel="stylesheet" href="../styles/doctor-management.style.css">
-  <link rel="stylesheet" href="../styles/alert.style.css">
+  <!-- <link rel="stylesheet" href="../styles/alert.style.css"> -->
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap"
     rel="stylesheet">
@@ -123,7 +123,7 @@
           <span class="label">Sign out</span>
         </a>
       </nav>
-      
+
       <div class="sidebar-footer">
         <div class="admin-avatar">AK</div>
         <div class="admin-meta">
@@ -171,6 +171,9 @@
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
               Add Doctor
+            </button>
+            <button class="btn-primary" onclick="accessTelegram()">
+              Go To Telegram
             </button>
           </div>
         </div>
@@ -371,6 +374,15 @@
     <div class="toast" id="toast"></div>
 
   </div>
+
+  <div class="modal-overlay" id="mediModalOverlay" onclick="MediAlert._handleOverlayClick(event)">
+    <div class="modal-box" id="mediModalBox">
+      <div class="modal-icon-area" id="mediModalIconArea"></div>
+      <div class="modal-detail" id="mediModalDetail" style="display:none;"></div>
+      <div class="modal-footer" id="mediModalFooter"></div>
+    </div>
+  </div>
+  <div class="toast-stack" id="toastStack"></div>
 
   <script src="../ts/doctor-management.ts" type="module"></script>
 </body>

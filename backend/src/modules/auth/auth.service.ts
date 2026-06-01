@@ -127,7 +127,8 @@ export class AuthService {
 
     async activateUser(email: string, code: string, res: Response) {
         const existingUser = await this.userModel.findOne({ where: { email } });
-
+        console.log(code)
+        console.log(email)
         if (!existingUser) {
             res.send({
                 success: false,

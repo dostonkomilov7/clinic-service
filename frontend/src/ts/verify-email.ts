@@ -197,7 +197,7 @@ async function handleVerify(): Promise<void> {
     verifyBtn.disabled = true;
 
     const email = new URLSearchParams(window.location.search).get('email');
-
+    console.log(code)
     const response = await fetch(`${apiUrl}/auth/activate`, {
         method: "POST",
         headers: {

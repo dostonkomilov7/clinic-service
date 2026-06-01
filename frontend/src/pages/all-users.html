@@ -466,6 +466,15 @@
 
   </div>
   <script src="../ts/all-users.ts" type="module"></script>
+
+  <div class="modal-overlay" id="mediModalOverlay" onclick="MediAlert._handleOverlayClick(event)">
+    <div class="modal-box" id="mediModalBox">
+      <div class="modal-icon-area" id="mediModalIconArea"></div>
+      <div class="modal-detail" id="mediModalDetail" style="display:none;"></div>
+      <div class="modal-footer" id="mediModalFooter"></div>
+    </div>
+  </div>
+  <div class="toast-stack" id="toastStack"></div>
 </body>
 
 </html>
