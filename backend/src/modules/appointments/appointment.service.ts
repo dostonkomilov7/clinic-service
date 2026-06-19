@@ -7,10 +7,18 @@ import { User } from "../users/model/user.model";
 import { Doctor } from "../doctors/model/doctors.model";
 import { AppointmentStatus } from "@/core/constants/constants";
 import { Op } from "sequelize";
+import { BotService } from "../telegram/bot.service";
+import { UserService } from "../users/user.service";
+import { DoctorService } from "../doctors/doctors.service";
 
 @Injectable()
 export class AppointmentService {
-    constructor(@InjectModel(Appointment) private readonly appointmentModel: typeof Appointment) { }
+    constructor(
+        @InjectModel(Appointment) private readonly appointmentModel: typeof Appointment,
+        private readonly userService: UserService,
+        private readonly doctorService: DoctorService,
+        private readonly botService: BotService,
+    ) { }
 
     async getAppointment() {
         const appointments = await this.appointmentModel.findAll()
@@ -91,6 +99,12 @@ export class AppointmentService {
                 appointment_time: dto.appointment_time,
                 status: AppointmentStatus.PENDING
             })
+
+            const user = await this.userService.getUser(String(dto.patient_id))
+            const doctor = await this.doctorService.getSingleDoctor(String(dto.doctor_id))
+
+            await this.botService.sendMessage(user.users[0].dataValues.telegram_id, `Appointment successfully created 🎉\n\n Now, status is pending ⏳. We will respond soon`)
+            await this.botService.sendMessage(doctor?.doctors[0].dataValues.user.dataValues.telegram_id, `You have an new appointment 🆕\n\n Please, check and respond to the appointment in the website ✅.\n\n\n Thank You Mr Doctor😊`)
             return {
                 success: true,
                 message: "Successfully created"
@@ -110,10 +124,25 @@ export class AppointmentService {
                 throw new NotFoundException("Appointment is not found")
             }
 
+            const user = await this.userService.getUser(String(existing.dataValues.patient_id))
+            const doctor = await this.doctorService.getSingleDoctor(String(existing.dataValues.patient_id))
+
             if (existing.dataValues.status === 'Pending') {
                 await this.appointmentModel.update({ status: AppointmentStatus.CONFIRMED }, { where: { id } })
+                if(doctor?.doctors[0]) {
+                    await this.botService.sendMessage(doctor?.doctors[0].dataValues.user.dataValues.telegram_id, `You have confirmed appointment 🎉\n\n Check the appointment.`)
+                }
+                if(user?.users[0]) {
+                    await this.botService.sendMessage(user.users[0].dataValues.telegram_id, `Appointment has been confirmed 🎉\n\n Now, status is confirmed ✅. Check the appointment.`)
+                }
             } else {
                 await this.appointmentModel.update({ status: AppointmentStatus.COMPLETED }, { where: { id } })
+                if(doctor?.doctors[0]) {
+                    await this.botService.sendMessage(doctor?.doctors[0].dataValues.user.dataValues.telegram_id, `You have successfully completed an appointment 🎉\n\n We wish you success in your work 🤝🏻`)
+                }
+                if(user?.users[0]) {
+                    await this.botService.sendMessage(user.users[0].dataValues.telegram_id, `Appointment has been completed 🎉\n\n We are glad for working with you. Thank You for your choice 😊`)
+                }
             }
 
             return {

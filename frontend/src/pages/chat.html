@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en" class="h-full bg-slate-900">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Realtime Room Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"
+        integrity="sha384-kzavj5fiMwLKzzD1f8S7TeoVIEi7uKHvbTA3ueZkrzYq75pNQUiUi6Dy98Q3fxb0"
+        crossorigin="anonymous"></script>
+</head>
+
+<body class="h-full flex items-center justify-center p-4 antialiased font-sans text-slate-200">
+    <div class="w-full max-w-4xl h-[85vh] bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl flex overflow-hidden">
+        <!-- LEFT SIDEBAR -->
+        <aside class="w-64 bg-slate-900/40 border-r border-slate-700/60 flex flex-col">
+            <div class="p-4 border-b border-slate-700/60">
+                <h2 class="text-xs font-bold tracking-wider text-slate-400 uppercase">Chat Channels</h2>
+            </div>
+            <nav id="room-list" class="flex-1 p-3 space-y-2 overflow-y-auto">
+                <p class="text-xs text-slate-500 text-center mt-4">Loading doctors...</p>
+            </nav>
+            <div class="p-4 bg-slate-900/60 border-t border-slate-700/40 space-y-2">
+                <div class="flex items-center gap-2">
+                    <span id="status-dot" class="w-2.5 h-2.5 bg-rose-500 rounded-full transition-colors duration-300"></span>
+                    <span id="status-text" class="text-xs text-rose-400 font-medium truncate">Disconnected</span>
+                </div>
+                <div id="client-id" class="text-[10px] font-mono text-slate-400 bg-slate-800/50 px-2 py-1 rounded border border-slate-700/30 truncate">
+                    ID: Offline
+                </div>
+            </div>
+        </aside>
+
+        <!-- RIGHT SECTION: Chat Window -->
+        <div class="flex-1 flex flex-col bg-slate-800/20">
+            <header class="px-6 py-4 bg-slate-800/80 border-b border-slate-700/60 flex items-center justify-between">
+                <div>
+                    <h1 id="active-room-title" class="text-sm font-semibold tracking-wide text-slate-100">—</h1>
+                    <p id="active-room-id" class="text-xs font-mono text-slate-500">Select a channel</p>
+                </div>
+            </header>
+            <main id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 scroll-smooth"></main>
+            <footer class="p-4 bg-slate-800/80 border-t border-slate-700/60">
+                <form id="chat-form" class="flex gap-2 items-center">
+                    <input type="text" id="message-input" placeholder="Send room message..." autocomplete="off" required
+                        class="flex-1 bg-slate-900/80 text-slate-100 text-sm placeholder-slate-500 px-4 py-3.5 rounded-xl border border-slate-700/80 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all" />
+                    <button type="submit"
+                        class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm px-5 py-3.5 rounded-xl shadow-lg shadow-indigo-600/20 active:scale-95 transition-all cursor-pointer">
+                        Send
+                    </button>
+                </form>
+            </footer>
+        </div>
+    </div>
+
+    <script type="module">
+        const BASE = "http://localhost:4000";
+
+        const res = await fetch(`${BASE}/doctors`);
+        const { doctors } = await res.json();
+
+        const userId = await cookieStore.get('userId');
+        const socket = io(BASE, { auth: { id: userId.value } });
+
+        // Build roomMetadata: doctor.user.id → { title, spec, notice }
+        const roomMetadata = new Map(
+            doctors.map(d => [
+                String(d.user.id),
+                {
+                    title: d.user.full_name,
+                    spec: d.specialization,
+                    notice: `Started chat with ${d.user.full_name}`
+                }
+            ])
+        );
+
+        // currentRoomId = target doctor's userId (for user_room_{id} on server)
+        let currentRoomId = '';
+
+        // --- DOM ---
+        const roomList      = document.getElementById("room-list");
+        const statusDot     = document.getElementById("status-dot");
+        const statusText    = document.getElementById("status-text");
+        const clientIdEl    = document.getElementById("client-id");
+        const chatMessages  = document.getElementById("chat-messages");
+        const chatForm      = document.getElementById("chat-form");
+        const messageInput  = document.getElementById("message-input");
+        const activeTitle   = document.getElementById("active-room-title");
+        const activeRoomIdEl= document.getElementById("active-room-id");
+
+        // --- Render sidebar ---
+        function renderRoomList() {
+            roomList.innerHTML = '';
+            for (const [id, meta] of roomMetadata) {
+                const btn = document.createElement('button');
+                btn.id = `btn-room-${id}`;
+                btn.onclick = () => switchRoom(id);
+                btn.className = roomBtnClass(id === currentRoomId);
+                btn.innerHTML = `
+                    <div class="flex items-center justify-between w-full">
+                        <span class="font-medium text-sm truncate">${meta.title}</span>
+                        <span id="indicator-${id}" class="w-2 h-2 rounded-full ${id === currentRoomId ? 'bg-indigo-400' : 'bg-transparent'}"></span>
+                    </div>
+                    <span class="text-[10px] font-mono text-slate-500">${meta.spec}</span>
+                `;
+                roomList.appendChild(btn);
+            }
+        }
+
+        function roomBtnClass(active) {
+            return `w-full text-left p-3 rounded-xl flex flex-col gap-1 transition-all border cursor-pointer ${
+                active
+                    ? 'bg-indigo-600/10 border-indigo-500/30 text-slate-100'
+                    : 'border-transparent text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'
+            }`;
+        }
+
+        function switchRoom(newRoomId) {
+            if (newRoomId === currentRoomId) return;
+
+            // Update old button style
+            if (currentRoomId) {
+                const oldBtn = document.getElementById(`btn-room-${currentRoomId}`);
+                const oldInd = document.getElementById(`indicator-${currentRoomId}`);
+                if (oldBtn) oldBtn.className = roomBtnClass(false);
+                if (oldInd) oldInd.className = 'w-2 h-2 rounded-full bg-transparent';
+            }
+
+            currentRoomId = newRoomId;
+
+            // Update new button style
+            const newBtn = document.getElementById(`btn-room-${newRoomId}`);
+            const newInd = document.getElementById(`indicator-${newRoomId}`);
+            if (newBtn) newBtn.className = roomBtnClass(true);
+            if (newInd) newInd.className = 'w-2 h-2 rounded-full bg-indigo-400';
+
+            const meta = roomMetadata.get(newRoomId);
+            activeTitle.innerText = meta.title;
+            activeRoomIdEl.innerText = `${meta.spec} · ID: ${newRoomId}`;
+
+            chatMessages.innerHTML = `
+                <div class="flex justify-center">
+                    <span class="text-[11px] font-medium tracking-wider uppercase text-slate-500 bg-slate-900/40 px-3 py-1 rounded-full border border-slate-800">
+                        ${meta.notice}
+                    </span>
+                </div>`;
+        }
+
+        // --- Socket events ---
+        socket.on("connect", () => {
+            statusDot.className = "w-2.5 h-2.5 bg-emerald-500 rounded-full transition-colors duration-300";
+            statusText.innerText = "Online";
+            statusText.className = "text-xs text-emerald-400 font-medium";
+            clientIdEl.innerText = `UID: ${socket.id.substring(0, 8)}`;
+        });
+
+        socket.on("disconnect", () => {
+            statusDot.className = "w-2.5 h-2.5 bg-rose-500 rounded-full transition-colors duration-300";
+            statusText.innerText = "Disconnected";
+            statusText.className = "text-xs text-rose-400 font-medium";
+            clientIdEl.innerText = "UID: Offline";
+        });
+
+        socket.on("message", (data) => {
+            // This fires only on the recipient side (server emits to user_room_{targetId})
+            // So incoming messages are always from someone else
+            appendMessage(data.message, data.userId, false);
+        });
+
+        // --- Send message ---
+        chatForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            if (!message || !currentRoomId) return;
+            // Backend: server.to(`user_room_${userId}`).emit('message', ...)
+            socket.emit("message", { message, userId: currentRoomId });
+            appendMessage(message, socket.id, true);
+            messageInput.value = '';
+            messageInput.focus();
+        });
+
+        function appendMessage(text, senderId, isMe) {
+            const wrapper = document.createElement("div");
+            wrapper.className = `flex flex-col ${isMe ? "items-end" : "items-start"}`;
+            wrapper.innerHTML = `
+                <span class="text-[11px] text-slate-400 mb-1 px-1">${isMe ? "You" : `User (${senderId.substring(0, 5)})`}</span>
+                <div class="max-w-[80%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed break-words ${
+                    isMe ? "bg-indigo-600 text-white rounded-tr-none" : "bg-slate-700 text-slate-200 rounded-tl-none"
+                }">${escapeHTML(text)}</div>`;
+            chatMessages.appendChild(wrapper);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function escapeHTML(str) {
+            const div = document.createElement("div");
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // --- Init ---
+        renderRoomList();
+        if (doctors.length > 0) switchRoom(String(doctors[0].user.id));
+    </script>
+</body>
+
+</html>

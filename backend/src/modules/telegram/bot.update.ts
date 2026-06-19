@@ -22,28 +22,65 @@ export class BotUpdate {
     @Start()
     async start(@Ctx() ctx: any) {
         const telegramId = ctx.from?.id;
-        const payload = ctx.message?.text.split(' ')[1];
 
-        if (payload) {
-            await this.userService.updateUser(payload as string, { telegram_id: telegramId } as UpdateUserDto)
-        }
+        await this.botService.sendMessage(telegramId, `
+            Appointment has been confirmed 🎉\n\nNow, status is confirmed ✅. Check the appointment.\n
+            \n📍 Location: MediBook Clinic
+            \n👨🏻‍⚕️ Doctor name:
+            \n🏨 Doctor department:
+            \n👤 Doctor specialty:
+            \n🗓️ Appointment date:
+            \n⏰ Appointment time:
+        `)
+        await this.botService.sendMessage(telegramId, `
+            You have confirmed appointment 🎉\n\nCheck the appointment.\n
+            \n📍 Location: MediBook Clinic
+            \n👨🏻‍⚕️ Doctor name:
+            \n🏨 Doctor department:
+            \n👤 Doctor specialty:
+            \n🗓️ Appointment date:
+            \n⏰ Appointment time:
+        `)
+        await this.botService.sendMessage(telegramId, `
+            Appointment has been completed 🎉\n\nWe are glad for working with you. Thank You for your choice 😊\n
+            \n📍 Location: MediBook Clinic
+            \n👨🏻‍⚕️ Doctor name:
+            \n🏨 Doctor department:
+            \n👤 Doctor specialty:
+            \n🗓️ Appointment date:
+            \n⏰ Appointment time:
+        `)
+        await this.botService.sendMessage(telegramId, `
+            You have successfully completed an appointment 🎉\n\nWe wish you success in your work 🤝🏻\n
+            \n📍 Location: MediBook Clinic
+            \n👨🏻‍⚕️ Doctor name:
+            \n🏨 Doctor department:
+            \n👤 Doctor specialty:
+            \n🗓️ Appointment date:
+            \n⏰ Appointment time:
+        `)
+        // const payload = ctx.message?.text.split(' ')[1];
 
-        const userData = await this.userService.getUser(String(telegramId));
+        // if (payload) {
+        //     await this.userService.updateUser(payload as string, { telegram_id: telegramId } as UpdateUserDto)
+        // }
 
-        if (!userData) {
-            return await ctx.reply('Please, sign up in the Medibook\'s website')
-        }
+        // const userData = await this.userService.getUser(String(telegramId));
 
-        const message = `Your informations 📄\n
-        \n👤 Full Name: ${userData.users[0]?.dataValues.full_name},
-        \n📧 Email: ${userData.users[0]?.dataValues.email},
-        \n☎️ Phone: ${userData.users[0]?.dataValues.phone},
-        \n🔰 Status: ${userData.users[0]?.dataValues.status},
-        \n🧑🏻‍💻 Role: ${userData.users[0]?.dataValues.role},
-        `
+        // if (!userData) {
+        //     return await ctx.reply('Please, sign up in the Medibook\'s website')
+        // }
 
-        await ctx.reply('Welcome to Medibook Clinic Bot, Dear, ' + userData.users[0]?.dataValues.full_name)
-        await this.botService.sendMessage(telegramId, message)
+        // const message = `Your informations 📄\n
+        // \n👤 Full Name: ${userData.users[0]?.dataValues.full_name},
+        // \n📧 Email: ${userData.users[0]?.dataValues.email},
+        // \n☎️ Phone: ${userData.users[0]?.dataValues.phone},
+        // \n🔰 Status: ${userData.users[0]?.dataValues.status},
+        // \n🧑🏻‍💻 Role: ${userData.users[0]?.dataValues.role},
+        // `
+
+        // await ctx.reply('Welcome to Medibook Clinic Bot, Dear, ' + userData.users[0]?.dataValues.full_name)
+        // await this.botService.sendMessage(telegramId, message)
 
     }
 
@@ -64,7 +101,7 @@ export class BotUpdate {
 
             await ctx.reply(`
                 Your Appointments 📅 🏥
-                ${flatData.map((el: any, i: any) => 
+                ${flatData.map((el: any, i: any) =>
                 `\n${i + 1}. 📍 Location: MediBook Clinic
                     \n👨🏻‍⚕️ Doctor name: ${el.dataValues.doctor.dataValues.user.dataValues.full_name}
                     \n🏨 Doctor department: ${el.dataValues.doctor.dataValues.department}
@@ -86,7 +123,7 @@ export class BotUpdate {
 
             await ctx.reply(`
                 \nYour Appointments 📅 🏥\n
-                ${flatData.map((el: any, i: any) => 
+                ${flatData.map((el: any, i: any) =>
                 `\n${i + 1}. 📍 Location: MediBook Clinic
                     \n👤 User name: ${el.dataValues.user.dataValues.full_name}
                     \n📧 User email: ${el.dataValues.user.dataValues.email}

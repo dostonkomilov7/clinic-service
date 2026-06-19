@@ -27,7 +27,7 @@ export class DoctorService {
                     where: { status: 'Active' }
                 }]
             })
-
+            
             const countInactive = await this.doctorModel.count({
                 include: [{
                     model: User,
@@ -40,10 +40,23 @@ export class DoctorService {
                 countActive,
                 countInactive,
             }
-
+            
         } catch (error) {
             console.log(error)
             throw error
+        }
+    }
+    
+    async getSingleDoctor(id: string) {
+        try {
+            const doctors = await this.doctorModel.findAll({ include: [User], where: { id } });
+
+            return {
+                success: true,
+                doctors
+            }
+        } catch (error) {
+            
         }
     }
 

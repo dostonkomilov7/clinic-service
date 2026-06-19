@@ -1,5 +1,6 @@
 import { UserRole, UserStatus } from "@/core/constants/constants";
 import { Appointment } from "@/modules/appointments/model/appointments.model";
+import { Chat } from "@/modules/chat/model/chat.model";
 import { Doctor } from "@/modules/doctors/model/doctors.model";
 import { Column, DataType, HasMany, Model, Table } from "sequelize-typescript"
 
@@ -25,6 +26,9 @@ export class User extends Model {
 
     @Column({type: DataType.STRING, allowNull: true, unique: true})
     telegram_id: string;
+    
+    @Column({type: DataType.STRING, allowNull: true, unique: true})
+    chat_id: string;
 
     @Column({ type: DataType.ENUM(...Object.values(UserRole)), defaultValue: UserRole.user })
     role: UserRole;
@@ -40,4 +44,7 @@ export class User extends Model {
 
     @HasMany(() => Appointment)
     appointments: Appointment[]
+
+    @HasMany(() => Chat)
+    chats: Chat[]
 }

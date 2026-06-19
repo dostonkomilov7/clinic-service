@@ -14,6 +14,7 @@ import { RolesGuard } from './common/guards/roles.guard';
 import { TelegrafModule } from 'nestjs-telegraf';
 import { session } from 'telegraf';
 import { BotModule } from './modules/telegram/bot.module';
+import { ChatModule } from './modules/chat/chat.module';
 
 @Module({
   imports: [
@@ -43,7 +44,8 @@ import { BotModule } from './modules/telegram/bot.module';
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => ({
         token: config.get<string>("TELEGRAM_BOT_TOKEN") as string,
-        middlewares: [session()]
+        middlewares: [session()],
+        polling: true,
       })
     }),
     UserModule,
@@ -52,6 +54,7 @@ import { BotModule } from './modules/telegram/bot.module';
     DoctorModule,
     AppointmentModule,
     BotModule,
+    ChatModule,
   ],
   providers: [
     {
